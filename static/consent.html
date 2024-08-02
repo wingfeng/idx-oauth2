@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>{{.title}}</title>
+  
+<!-- 最新版本的 Bootstrap 核心 CSS 文件 -->
+<link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
+
+<!-- 可选的 Bootstrap 主题文件（一般不用引入） -->
+<link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap-theme.min.css" integrity="sha384-6pzBo3FDv/PJ8r2KRkGHifhEocL+1X2rVCTTkUfGk7/0pbek5mMa1upzvWbrUbOZ" crossorigin="anonymous">
+
+<!-- 最新的 Bootstrap 核心 JavaScript 文件 -->
+<script src="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd" crossorigin="anonymous"></script>
+
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="jumbotron">
+        <form action="/oauth2/consent" method="POST">
+          <h1>Consent</h1>
+          <p>Application <b>{{.client_name}}({{.client_id}})</b> need your consent to access resources listed below</p>
+        
+          <hr/>
+          <p>Scopes: </p>
+          {{range .scope}}
+       <li><label>   <input type="checkbox" name="scope" value="{{.}}" checked="checked"/> {{.}} </label></li>
+          {{end}}
+          <input type="hidden" name="client_id" value="{{.client_id}}"/>
+          <input type="hidden" name="uri" value="{{.uri}}"/>
+            <button
+              type="submit"
+              class="btn btn-primary btn-lg"
+              style="width:200px;"
+            >
+              confirm
+            </button>
+          </p>
+        </form>
+      </div>
+    </div>
+    {{template "footer.html" .}}
+  </body>
+</html>

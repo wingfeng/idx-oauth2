@@ -1,0 +1,17 @@
+<html>
+   <head><title>Submit This Form</title></head>
+   <body onload="javascript:document.forms[0].submit()">
+    <form method="post" action="{{.callback}}">
+      <input type="hidden" name="state"
+       value="{{.state}}"/>
+      <input type="hidden" name="id_token"
+       value="{{.id_token}}"/>
+       <input type="hidden" name="access_token"
+       value="{{.access_token}}"/>
+       <input type="hidden" name="nonce"
+       value="{{.nonce}}"/>
+       <input type="hidden" name="code"
+       value="{{.code}}"/>
+    </form>
+   </body>
+  </html>
