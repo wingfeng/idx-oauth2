@@ -8,11 +8,11 @@ import (
 	"encoding/pem"
 	"testing"
 
+	"github.com/golang-jwt/jwt"
 	"github.com/wingfeng/idx/oauth2/conf"
 	"github.com/wingfeng/idx/oauth2/model"
 	"github.com/wingfeng/idx/oauth2/service/impl"
 
-	"github.com/dgrijalva/jwt-go"
 	"github.com/stretchr/testify/assert"
 )
 

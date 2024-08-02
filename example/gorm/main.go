@@ -14,6 +14,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
 
+	idxgorm "github.com/wingfeng/idx-gorm"
 	"github.com/wingfeng/idx-gorm/models"
 	"github.com/wingfeng/idx-gorm/repo"
 	"github.com/wingfeng/idx/oauth2/core"
@@ -23,8 +24,6 @@ import (
 
 	"github.com/wingfeng/idx/oauth2/service"
 	"github.com/wingfeng/idx/oauth2/service/impl"
-
-	"github.com/wingfeng/idx/utils"
 )
 
 func main() {
@@ -55,7 +54,7 @@ func main() {
 	config := conf.DefaultConfig()
 
 	//初始化DB
-	db := utils.GetDB(dbDriver, dbConnection)
+	db := idxgorm.GetDB(dbDriver, dbConnection)
 
 	router := gin.Default()
 	router.Use(func(ctx *gin.Context) {

@@ -1,6 +1,7 @@
 package test
 
 import (
+	"github.com/golang-jwt/jwt"
 	"github.com/wingfeng/idx/oauth2/conf"
 	constants "github.com/wingfeng/idx/oauth2/const"
 	"github.com/wingfeng/idx/oauth2/core"
@@ -11,7 +12,6 @@ import (
 	"github.com/wingfeng/idx/oauth2/service/impl"
 	"github.com/wingfeng/idx/oauth2/utils"
 
-	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 )
 
