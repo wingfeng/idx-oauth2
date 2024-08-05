@@ -1,9 +1,14 @@
 package endpoint
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-gonic/gin"
+)
 
 func Logout(ctx *gin.Context) {
 	//remove principle cookise
-	ctx.SetCookie(Const_Principle, "", -1, "/", "", false, true)
+	session := sessions.Default(ctx)
+	session.Delete(Const_Principle)
+	session.Save()
 	ctx.Redirect(302, "/")
 }

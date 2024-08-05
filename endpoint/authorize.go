@@ -101,6 +101,7 @@ func (ctrl *AuthorizeController) Authorize(ctx *gin.Context) {
 		})
 		return
 	}
+
 	authorization := ctrl.AuthorizeService.CreateAuthorization(req, string(principle))
 
 	callbackQuery := make(url.Values)

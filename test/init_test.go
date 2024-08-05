@@ -1,6 +1,10 @@
 package test
 
 import (
+	"strings"
+
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/cookie"
 	"github.com/golang-jwt/jwt"
 	"github.com/wingfeng/idx/oauth2/conf"
 	constants "github.com/wingfeng/idx/oauth2/const"
@@ -28,11 +32,19 @@ func init_router() (*gin.Engine, *core.Tenant) {
 	router := gin.Default()
 	router.LoadHTMLGlob("../static/*.html")
 	group := router.Group(config.EndpointGroup)
+	store := cookie.NewStore([]byte("secret"))
+	router.Use(sessions.Sessions("mysession", store))
+
 	group.Use(func(ctx *gin.Context) {
 		//		ctx.Set(endpoint.Const_Principle, "admin")
-		cookie, err := ctx.Request.Cookie(endpoint.Const_Principle)
-		if err == nil {
-			ctx.Set(endpoint.Const_Principle, cookie.Value)
+		session := sessions.Default(ctx)
+		var principle string
+		v := session.Get(endpoint.Const_Principle)
+		if v != nil {
+			principle = v.(string)
+		}
+		if !strings.EqualFold(principle, "") {
+			ctx.Set(endpoint.Const_Principle, principle)
 		}
 
 		ctx.Next()

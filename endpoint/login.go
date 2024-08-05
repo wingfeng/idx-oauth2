@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/gin-contrib/sessions"
 	"github.com/wingfeng/idx/oauth2/service"
 
 	"github.com/gin-gonic/gin"
@@ -27,8 +28,10 @@ func (ctrl *LoginController) PostLogin(ctx *gin.Context) {
 		return
 	}
 	if ctrl.UserService.VerifyPassword(loginRequest.UserName, loginRequest.Password) {
-		ctx.SetCookie(Const_Principle, loginRequest.UserName, 3600, "/", "", false, true)
 
+		session := sessions.Default(ctx)
+		session.Set(Const_Principle, loginRequest.UserName)
+		session.Save()
 		link := "/"
 
 		if !strings.EqualFold(ctx.PostForm("redirect"), "") {

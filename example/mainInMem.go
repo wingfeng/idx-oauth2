@@ -10,6 +10,11 @@ import (
 	"os"
 	"strings"
 
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/cookie"
+	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt"
+	"github.com/google/uuid"
 	"github.com/wingfeng/idx/oauth2/conf"
 	constants "github.com/wingfeng/idx/oauth2/const"
 	"github.com/wingfeng/idx/oauth2/core"
@@ -19,10 +24,6 @@ import (
 	"github.com/wingfeng/idx/oauth2/service"
 	"github.com/wingfeng/idx/oauth2/service/impl"
 	"github.com/wingfeng/idx/oauth2/utils"
-
-	"github.com/gin-gonic/gin"
-	"github.com/golang-jwt/jwt"
-	"github.com/google/uuid"
 )
 
 func main() {
@@ -35,15 +36,22 @@ func main() {
 
 	clientRepo := buildClientRepo()
 	router := gin.Default()
+
+	store := cookie.NewStore([]byte("secret"))
+	router.Use(sessions.Sessions("mysession", store))
+
 	router.Use(func(ctx *gin.Context) {
 		principle := ""
-
-		cookie, err := ctx.Request.Cookie(endpoint.Const_Principle)
-		if err == nil {
-			principle = cookie.Value
-			slog.Info("User logged in ", "user", principle)
-			ctx.Set(endpoint.Const_Principle, cookie.Value)
+		session := sessions.Default(ctx)
+		v := session.Get(endpoint.Const_Principle)
+		if v != nil {
+			principle = v.(string)
 		}
+		if !strings.EqualFold(principle, "") {
+			ctx.Set(endpoint.Const_Principle, principle)
+		}
+		slog.Info("User logged in ", "user", principle)
+
 		ignorePaths := []string{"/login", "/oauth2/token", "/oauth2/authorize", "/oauth2/device",
 			"/.well-known/openid-configuration",
 			"/.well-known/jwks",
@@ -68,8 +76,8 @@ func main() {
 
 		ctx.Next()
 	})
-	router.Static("/img", "./static/img")
-	router.LoadHTMLGlob("./static/*.html")
+	router.Static("/img", "../static/img")
+	router.LoadHTMLGlob("../static/*.html")
 	router.GET("/", endpoint.Index)
 	router.GET("/index.html", endpoint.Index)
 

@@ -11,9 +11,10 @@ import (
 	"os"
 	"strings"
 
+	"github.com/gin-contrib/sessions"
+	gormsessions "github.com/gin-contrib/sessions/gorm"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
-
 	idxgorm "github.com/wingfeng/idx-gorm"
 	"github.com/wingfeng/idx-gorm/models"
 	"github.com/wingfeng/idx-gorm/repo"
@@ -57,15 +58,20 @@ func main() {
 	db := idxgorm.GetDB(dbDriver, dbConnection)
 
 	router := gin.Default()
-	router.Use(func(ctx *gin.Context) {
-		principle := ""
+	store := gormsessions.NewStore(db, true, []byte("secret"))
+	router.Use(sessions.Sessions("mysession", store))
 
-		cookie, err := ctx.Request.Cookie(endpoint.Const_Principle)
-		if err == nil {
-			principle = cookie.Value
-			slog.Info("User logged in ", "user", principle)
-			ctx.Set(endpoint.Const_Principle, cookie.Value)
+	router.Use(func(ctx *gin.Context) {
+		session := sessions.Default(ctx)
+		var principle string
+		v := session.Get(endpoint.Const_Principle)
+		if v != nil {
+			principle = v.(string)
 		}
+		if !strings.EqualFold(principle, "") {
+			ctx.Set(endpoint.Const_Principle, principle)
+		}
+
 		ignorePaths := []string{"/login", "/oauth2/token", "/oauth2/authorize", "/oauth2/device",
 			"/.well-known/openid-configuration",
 			"/.well-known/jwks",

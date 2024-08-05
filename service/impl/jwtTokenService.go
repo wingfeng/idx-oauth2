@@ -29,12 +29,13 @@ func NewJwtTokenService(method jwt.SigningMethod, signKey interface{}, getClaims
 func (s *JWTTokenService) GenerateToken(authorization *model.Authorization) (string, error) {
 	userName := authorization.PrincipalName
 	token := jwt.NewWithClaims(s.Method, jwt.MapClaims{
-		"sub":   authorization.Subject, // subject
-		"name":  userName,
-		"iat":   time.Now().Unix(),       // issued at
-		"exp":   authorization.ExpiresAt, // expires at
-		"aud":   authorization.ClientId,
-		"nonce": authorization.Nonce,
+		"iss":                authorization.Issuer,
+		"sub":                authorization.Subject, // subject
+		"preferred_username": userName,
+		"iat":                time.Now().Unix(),       // issued at
+		"exp":                authorization.ExpiresAt, // expires at
+		"aud":                authorization.ClientId,
+		"nonce":              authorization.Nonce,
 	})
 
 	//do not add additional claims to access token. only added to id token
@@ -57,10 +58,13 @@ func (s *JWTTokenService) GenerateRefreshToken(authorization *model.Authorizatio
 func (s *JWTTokenService) GenerateIDToken(authorization *model.Authorization) (string, error) {
 	userName := authorization.PrincipalName
 	token := jwt.NewWithClaims(s.Method, jwt.MapClaims{
-		"sub":  authorization.Subject, // subject
-		"name": userName,
-		"iat":  time.Now().Unix(),       // issued at
-		"exp":  authorization.ExpiresAt, // expires at
+		"iss":                authorization.Issuer,
+		"sub":                authorization.Subject, // subject
+		"preferred_username": userName,
+		"iat":                time.Now().Unix(),       // issued at
+		"exp":                authorization.ExpiresAt, // expires at
+		"aud":                authorization.ClientId,
+		"nonce":              authorization.Nonce,
 	})
 	if s.AddClaims != nil {
 		claims := s.AddClaims(userName, authorization.Scope)

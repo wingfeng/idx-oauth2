@@ -7,6 +7,7 @@ import (
 
 type Authorization struct {
 	Id            string `json:"id"`
+	Issuer        string `json:"iss"`
 	ClientId      string `json:"client_id"`
 	PrincipalName string `json:"principal_name"`
 	Subject       string `json:"subject"`
