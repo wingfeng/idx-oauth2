@@ -18,13 +18,13 @@ import (
 	idxgorm "github.com/wingfeng/idx-gorm"
 	"github.com/wingfeng/idx-gorm/models"
 	"github.com/wingfeng/idx-gorm/repo"
-	"github.com/wingfeng/idx/oauth2/core"
-	"github.com/wingfeng/idx/oauth2/endpoint"
+	"github.com/wingfeng/idx-oauth2/core"
+	"github.com/wingfeng/idx-oauth2/endpoint"
 
-	"github.com/wingfeng/idx/oauth2/conf"
+	"github.com/wingfeng/idx-oauth2/conf"
 
-	"github.com/wingfeng/idx/oauth2/service"
-	"github.com/wingfeng/idx/oauth2/service/impl"
+	"github.com/wingfeng/idx-oauth2/service"
+	"github.com/wingfeng/idx-oauth2/service/impl"
 )
 
 func main() {

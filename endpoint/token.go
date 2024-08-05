@@ -8,12 +8,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/wingfeng/idx/oauth2/conf"
-	constants "github.com/wingfeng/idx/oauth2/const"
-	"github.com/wingfeng/idx/oauth2/model"
-	"github.com/wingfeng/idx/oauth2/model/request"
-	"github.com/wingfeng/idx/oauth2/model/response"
-	"github.com/wingfeng/idx/oauth2/service"
+	"github.com/wingfeng/idx-oauth2/conf"
+	constants "github.com/wingfeng/idx-oauth2/const"
+	"github.com/wingfeng/idx-oauth2/model"
+	"github.com/wingfeng/idx-oauth2/model/request"
+	"github.com/wingfeng/idx-oauth2/model/response"
+	"github.com/wingfeng/idx-oauth2/service"
 
 	"github.com/gin-gonic/gin"
 )

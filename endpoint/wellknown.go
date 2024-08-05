@@ -3,7 +3,7 @@ package endpoint
 import (
 	"fmt"
 
-	"github.com/wingfeng/idx/oauth2/conf"
+	"github.com/wingfeng/idx-oauth2/conf"
 
 	"github.com/gin-gonic/gin"
 )

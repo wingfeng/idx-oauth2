@@ -5,10 +5,10 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/wingfeng/idx/oauth2/conf"
-	"github.com/wingfeng/idx/oauth2/model"
-	"github.com/wingfeng/idx/oauth2/model/request"
-	"github.com/wingfeng/idx/oauth2/service"
+	"github.com/wingfeng/idx-oauth2/conf"
+	"github.com/wingfeng/idx-oauth2/model"
+	"github.com/wingfeng/idx-oauth2/model/request"
+	"github.com/wingfeng/idx-oauth2/service"
 
 	"github.com/gin-gonic/gin"
 )

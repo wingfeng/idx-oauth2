@@ -9,9 +9,9 @@ import (
 	"testing"
 
 	"github.com/golang-jwt/jwt"
-	"github.com/wingfeng/idx/oauth2/conf"
-	"github.com/wingfeng/idx/oauth2/model"
-	"github.com/wingfeng/idx/oauth2/service/impl"
+	"github.com/wingfeng/idx-oauth2/conf"
+	"github.com/wingfeng/idx-oauth2/model"
+	"github.com/wingfeng/idx-oauth2/service/impl"
 
 	"github.com/stretchr/testify/assert"
 )

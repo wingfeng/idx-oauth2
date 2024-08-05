@@ -3,7 +3,7 @@ package service
 import (
 	"log/slog"
 
-	"github.com/wingfeng/idx/oauth2/repo"
+	"github.com/wingfeng/idx-oauth2/repo"
 )
 
 type ConsentService interface {

@@ -1,4 +1,4 @@
-module github.com/wingfeng/idx/oauth2
+module github.com/wingfeng/idx-oauth2
 
 go 1.22.4
 

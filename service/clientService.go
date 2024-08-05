@@ -6,8 +6,8 @@ import (
 	"log/slog"
 	"strings"
 
-	"github.com/wingfeng/idx/oauth2/model"
-	"github.com/wingfeng/idx/oauth2/repo"
+	"github.com/wingfeng/idx-oauth2/model"
+	"github.com/wingfeng/idx-oauth2/repo"
 
 	"golang.org/x/crypto/bcrypt"
 )

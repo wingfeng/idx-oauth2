@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/wingfeng/idx/oauth2/service"
+	"github.com/wingfeng/idx-oauth2/service"
 )
 
 type ConsentController struct {

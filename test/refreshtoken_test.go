@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/wingfeng/idx/oauth2/model/response"
+	"github.com/wingfeng/idx-oauth2/model/response"
 
 	"github.com/magiconair/properties/assert"
 )

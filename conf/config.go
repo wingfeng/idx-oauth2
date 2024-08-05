@@ -1,6 +1,6 @@
 package conf
 
-import constants "github.com/wingfeng/idx/oauth2/const"
+import constants "github.com/wingfeng/idx-oauth2/const"
 
 type Config struct {
 	TokenLifeTime                      int64    `json:"-"`

@@ -4,7 +4,7 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/wingfeng/idx/oauth2/model"
+	"github.com/wingfeng/idx-oauth2/model"
 
 	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"

@@ -1,6 +1,6 @@
 package service
 
-import "github.com/wingfeng/idx/oauth2/model"
+import "github.com/wingfeng/idx-oauth2/model"
 
 type TokenService interface {
 	GenerateToken(authorization *model.Authorization) (string, error)

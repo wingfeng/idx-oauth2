@@ -3,15 +3,15 @@ package service
 import (
 	"errors"
 
-	"github.com/wingfeng/idx/oauth2/conf"
-	constants "github.com/wingfeng/idx/oauth2/const"
+	"github.com/wingfeng/idx-oauth2/conf"
+	constants "github.com/wingfeng/idx-oauth2/const"
 
 	"log/slog"
 	"strings"
 
-	"github.com/wingfeng/idx/oauth2/model"
-	"github.com/wingfeng/idx/oauth2/model/request"
-	"github.com/wingfeng/idx/oauth2/repo"
+	"github.com/wingfeng/idx-oauth2/model"
+	"github.com/wingfeng/idx-oauth2/model/request"
+	"github.com/wingfeng/idx-oauth2/repo"
 
 	"github.com/google/uuid"
 )

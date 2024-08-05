@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/wingfeng/idx/oauth2/model"
+	"github.com/wingfeng/idx-oauth2/model"
 )
 
 type ClientRepository interface {

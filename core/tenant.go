@@ -1,10 +1,10 @@
 package core
 
 import (
-	"github.com/wingfeng/idx/oauth2/conf"
-	"github.com/wingfeng/idx/oauth2/endpoint"
-	"github.com/wingfeng/idx/oauth2/repo"
-	"github.com/wingfeng/idx/oauth2/service"
+	"github.com/wingfeng/idx-oauth2/conf"
+	"github.com/wingfeng/idx-oauth2/endpoint"
+	"github.com/wingfeng/idx-oauth2/repo"
+	"github.com/wingfeng/idx-oauth2/service"
 
 	"github.com/gin-gonic/gin"
 )

@@ -9,8 +9,8 @@ import (
 	"net/url"
 	"testing"
 
-	constants "github.com/wingfeng/idx/oauth2/const"
-	"github.com/wingfeng/idx/oauth2/model/response"
+	constants "github.com/wingfeng/idx-oauth2/const"
+	"github.com/wingfeng/idx-oauth2/model/response"
 
 	"github.com/magiconair/properties/assert"
 )

@@ -1,6 +1,6 @@
 package repo
 
-import "github.com/wingfeng/idx/oauth2/model"
+import "github.com/wingfeng/idx-oauth2/model"
 
 type UserRepository interface {
 	GetUser(userId string) (model.IUser, error)

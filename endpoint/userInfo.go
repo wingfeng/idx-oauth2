@@ -1,7 +1,7 @@
 package endpoint
 
 import (
-	"github.com/wingfeng/idx/oauth2/service"
+	"github.com/wingfeng/idx-oauth2/service"
 
 	"github.com/gin-gonic/gin"
 )
@@ -20,7 +20,12 @@ func (c *UserInfoController) GetUserInfo(ctx *gin.Context) {
 
 	token := authHeader[7:]
 	//validate access token and get principal
+
 	authorize := c.AuthorizeService.GetAuthorizationByAccessToken(token)
+	if authorize == nil {
+		ctx.AbortWithStatus(401)
+		return
+	}
 	user, err := c.UserService.GetUser(authorize.Subject)
 	if err != nil {
 		ctx.JSON(400, err.Error())

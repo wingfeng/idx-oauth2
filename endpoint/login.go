@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/gin-contrib/sessions"
-	"github.com/wingfeng/idx/oauth2/service"
+	"github.com/wingfeng/idx-oauth2/service"
 
 	"github.com/gin-gonic/gin"
 )
