@@ -5,6 +5,7 @@ import constants "github.com/wingfeng/idx-oauth2/const"
 type Config struct {
 	TokenLifeTime                      int64    `json:"-"`
 	DeviceCodeLifeTime                 int      `json:"-"`
+	RefreshTokenLifeTime               int64    `json:"-"`
 	Scheme                             string   `json:"-"`
 	EndpointGroup                      string   `json:"-"`
 	ConsentEndpoint                    string   `json:"-"`
@@ -37,8 +38,9 @@ type Config struct {
 
 func DefaultConfig() *Config {
 	return &Config{
-
+		Scheme:                             "http",
 		TokenLifeTime:                      3600,
+		RefreshTokenLifeTime:               24 * 3600,
 		DeviceCodeLifeTime:                 600,
 		JwksURI:                            "/.well-known/jwks",
 		EndpointGroup:                      "/oauth2",

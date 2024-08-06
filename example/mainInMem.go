@@ -34,7 +34,6 @@ func main() {
 	config := conf.DefaultConfig()
 	config.Scheme = "http"
 
-	clientRepo := buildClientRepo()
 	router := gin.Default()
 
 	store := cookie.NewStore([]byte("secret"))
@@ -55,7 +54,13 @@ func main() {
 		ignorePaths := []string{"/login", "/oauth2/token", "/oauth2/authorize", "/oauth2/device",
 			"/.well-known/openid-configuration",
 			"/.well-known/jwks",
+			"/oauth2/userinfo",
+			"/oauth2/introspect",
+			"/index",
+			"/",
+			"/index.html",
 		}
+
 		for _, ignorePath := range ignorePaths {
 			if ctx.Request.URL.Path == ignorePath {
 				ctx.Next()
@@ -83,10 +88,11 @@ func main() {
 
 	router.GET("/logout", endpoint.Logout)
 	router.POST("/logout", endpoint.Logout)
-	group := router.Group("/oauth2")
+
+	group := router.Group(config.EndpointGroup)
 
 	tokenService, jwks := buildTokenService(config)
-
+	clientRepo := buildClientRepo()
 	authRepo := repo.NewInMemoryAuthorizeRepository()
 
 	consentRepo := &repo.InMemoryConsentRepository{

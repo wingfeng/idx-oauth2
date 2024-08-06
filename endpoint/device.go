@@ -39,7 +39,8 @@ func (ctrl *DeviceCodeController) GetDeviceCode(ctx *gin.Context) {
 		ctx.JSON(401, gin.H{"error": err.Error()})
 		return
 	}
-	auth := ctrl.AuthorizationService.GenerateDeviceAuthorization(req.ClientId, req.Scope)
+	issuer := getIssuer(ctx, ctrl.Config)
+	auth := ctrl.AuthorizationService.CreateDeviceAuthorization(req.ClientId, req.Scope, issuer)
 
 	verifyUri := fmt.Sprintf("%s%s?%s=%s", ctrl.Config.EndpointGroup, ctrl.Config.DeviceAuthorizationEndpoint, "user_code", auth.UserCode)
 	resp := &response.DeviceCodeResponse{
@@ -73,7 +74,7 @@ func (ctrl *DeviceCodeController) PostDeviceAuthorization(ctx *gin.Context) {
 	slog.Debug("Valide Principle done", "principle", principle)
 	auth := ctrl.AuthorizationService.GetAuthorizationByUserCode(ctx.Request.FormValue("user_code"))
 	auth.PrincipalName = principle
-	auth.UpdateExiresIn(ctrl.Config.TokenLifeTime)
+	auth.UpdateExiresAt(ctrl.Config.TokenLifeTime)
 	ctrl.AuthorizationService.Save(auth)
 	ctx.HTML(200, "device_success.html", gin.H{
 		"title": "IDX Home",

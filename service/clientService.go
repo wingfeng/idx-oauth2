@@ -13,11 +13,33 @@ import (
 )
 
 type ClientService interface {
+	// GetClient retrieves a client object by the client ID.
+	// Parameters:
+	//   clientId - The unique identifier of the client.
+	// Returns:
+	//   model.IClient - An object that implements the client interface.
+	//   error - An error message if an error occurs.
 	GetClient(clientId string) (model.IClient, error)
+
+	// ValidateSecret verifies whether the client's secret is valid.
+	// Parameters:
+	//   clientId - The unique identifier of the client.
+	//   secret - The client's secret.
+	// Returns:
+	//   bool - True if the secret is valid, otherwise false.
 	ValidateSecret(clientId string, secret string) bool
-	//ValidateScope(clientId string, scope string) bool
-	//Validate Client redirect Url,Scope,GrandTypes ...
+
+	// ValidateClient checks if a client object is valid.
+	// Parameters:
+	//   client - The client object to validate.
+	// Returns:
+	//   error - An error message if the client object is invalid.
 	ValidateClient(client model.IClient) error
+
+	// SetClientRepository sets the client repository.
+	// Parameters:
+	//   clientRepository - The client repository interface.
+	// This method is used for dependency injection to access the client data store when needed.
 	SetClientRepository(clientRepository repo.ClientRepository)
 }
 
@@ -42,11 +64,18 @@ func (cs *DefaultClientService) ValidateSecret(clientId string, secret string) b
 		slog.Error("Get client error", "error", err)
 		return false
 	}
-	if strings.EqualFold(client.GetSecret(), "") {
+	if len(client.GetSecret()) == 0 {
 		return true
 	}
-	err = bcrypt.CompareHashAndPassword([]byte(client.GetSecret()), []byte(secret))
-	return err == nil
+	secrets := client.GetSecret()
+	for _, s := range secrets {
+		err = bcrypt.CompareHashAndPassword([]byte(s), []byte(secret))
+		if err == nil {
+			return true
+		}
+	}
+
+	return false
 }
 
 func (cs *DefaultClientService) ValidateClient(client model.IClient) error {

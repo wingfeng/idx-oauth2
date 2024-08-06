@@ -16,19 +16,45 @@ import (
 	"github.com/google/uuid"
 )
 
+// AuthorizeService defines the interface for authorization operations.
 type AuthorizeService interface {
+	// NewId generates a unique identifier for a new authorization.
 	NewId() string
+
+	// Save persists an authorization object.
 	Save(*model.Authorization)
+
+	// Remove deletes an authorization object.
 	Remove(*model.Authorization)
+
+	// GetAuthorizationByCode retrieves an authorization object by its code.
 	GetAuthorizationByCode(string) *model.Authorization
+
+	// GetAuthorizationByAccessToken retrieves an authorization object by its access token.
 	GetAuthorizationByAccessToken(string) *model.Authorization
+
+	// GetAuthorizationByRefreshToken retrieves an authorization object by its refresh token.
 	GetAuthorizationByRefreshToken(string) *model.Authorization
+
+	// GetAuthorizeionByPassword retrieves an authorization object by password verification, may return an error.
 	GetAuthorizeionByPassword(*request.PasswordRequest) (*model.Authorization, error)
+
+	// GetAuthorizationByDeviceCode retrieves an authorization object by device code.
 	GetAuthorizationByDeviceCode(device_code string) *model.Authorization
+
+	// GetAuthorizationByUserCode retrieves an authorization object by user code.
 	GetAuthorizationByUserCode(user_code string) *model.Authorization
-	GenerateDeviceAuthorization(clientId string, scope string) *model.Authorization
+
+	// CreateDeviceAuthorization creates a device code authorization.
+	CreateDeviceAuthorization(clientId string, scope string, issuer string) *model.Authorization
+
+	// CreateAuthorization creates a new authorization based on the provided authorization code request information.
 	CreateAuthorization(request *request.AuthorizeRequest, principal string) *model.Authorization
+
+	// GenerateUserCode generates a unique user code for device code authorization.
 	GenerateUserCode() string
+
+	// GenerateDeviceCode generates a unique device code for device code authorization.
 	GenerateDeviceCode() string
 }
 
@@ -61,7 +87,8 @@ func (srv *DefaultAuthorizeService) GetAuthorizationByRefreshToken(token string)
 	//Todo: regenerate token
 	auth := srv.repo.GetAuthorizationByRefreshToken(token)
 	if auth != nil {
-		auth.UpdateExiresIn(int64(srv.Config.TokenLifeTime))
+		auth.UpdateExiresAt(int64(srv.Config.TokenLifeTime))
+		auth.UpdateRefreshTokenExpiresAt(srv.Config.RefreshTokenLifeTime)
 		auth.AccessToken, _ = srv.TokenService.GenerateToken(auth)
 		auth.RefreshToken, _ = srv.TokenService.GenerateRefreshToken(auth)
 		auth.IDToken, _ = srv.TokenService.GenerateIDToken(auth)
@@ -78,6 +105,7 @@ func (src *DefaultAuthorizeService) CreateAuthorization(request *request.Authori
 	}
 	auth := &model.Authorization{
 		Id:                  src.NewId(),
+		Issuer:              request.Issuer,
 		ClientId:            request.ClientId,
 		GrantType:           string(constants.AuthorizationCode),
 		PrincipalName:       principal,
@@ -89,7 +117,8 @@ func (src *DefaultAuthorizeService) CreateAuthorization(request *request.Authori
 		CodeChallengeMethod: request.CodeChallengeMethod,
 	}
 
-	auth.UpdateExiresIn(src.Config.TokenLifeTime)
+	auth.UpdateExiresAt(src.Config.TokenLifeTime)
+	auth.UpdateRefreshTokenExpiresAt(src.Config.RefreshTokenLifeTime)
 	auth.GrantType = strings.Join(GetGrantTypeByReponseType(request.ResponseType), " ")
 	accessToken, err := src.TokenService.GenerateToken(auth)
 	if err != nil {
@@ -127,7 +156,7 @@ func (srv *DefaultAuthorizeService) GetAuthorizeionByPassword(request *request.P
 		PrincipalName: userName,
 		Subject:       user.GetId(),
 	}
-	auth.UpdateExiresIn(int64(srv.Config.TokenLifeTime))
+	auth.UpdateExiresAt(int64(srv.Config.TokenLifeTime))
 	auth.AccessToken, _ = srv.TokenService.GenerateToken(auth)
 	auth.RefreshToken, _ = srv.TokenService.GenerateRefreshToken(auth)
 	auth.IDToken, _ = srv.TokenService.GenerateIDToken(auth)
@@ -148,6 +177,9 @@ func (srv *DefaultAuthorizeService) GetAuthorizationByDeviceCode(device_code str
 
 	auth.Subject = user.GetId()
 
+	auth.UpdateExiresAt(srv.Config.TokenLifeTime)
+	auth.UpdateRefreshTokenExpiresAt(srv.Config.RefreshTokenLifeTime)
+
 	if strings.EqualFold(auth.AccessToken, "") {
 		auth.AccessToken, _ = srv.TokenService.GenerateToken(auth)
 		auth.RefreshToken, _ = srv.TokenService.GenerateRefreshToken(auth)
@@ -162,16 +194,17 @@ func (srv *DefaultAuthorizeService) GetAuthorizationByDeviceCode(device_code str
 func (srv *DefaultAuthorizeService) GetAuthorizationByUserCode(user_code string) *model.Authorization {
 	return srv.repo.GetAuthorizationByUserCode(user_code)
 }
-func (srv *DefaultAuthorizeService) GenerateDeviceAuthorization(clientId string, scope string) *model.Authorization {
+func (srv *DefaultAuthorizeService) CreateDeviceAuthorization(clientId string, scope string, issuer string) *model.Authorization {
 	auth := &model.Authorization{
 		Id:         srv.NewId(),
+		Issuer:     issuer,
 		ClientId:   clientId,
 		GrantType:  string(constants.DeviceCode),
 		Scope:      scope,
 		UserCode:   srv.GenerateUserCode(),
 		DeviceCode: srv.GenerateDeviceCode(),
 	}
-	auth.UpdateExiresIn(int64(srv.Config.DeviceCodeLifeTime))
+	auth.UpdateExiresAt(int64(srv.Config.DeviceCodeLifeTime))
 	//save authorize to repo
 	srv.Save(auth)
 	return auth

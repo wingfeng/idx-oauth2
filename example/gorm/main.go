@@ -77,6 +77,9 @@ func main() {
 			"/.well-known/jwks",
 			"/oauth2/userinfo",
 			"/oauth2/introspect",
+			"/index",
+			"/",
+			"/index.html",
 		}
 		for _, ignorePath := range ignorePaths {
 			if ctx.Request.URL.Path == ignorePath {

@@ -21,19 +21,19 @@
 
 <body>
     <div class="container">
-        <h1><a href="/">IDx系统</a> 登录</h1>
+        <h1  class="card-title"><a href="/">IDx</a> Login</h1>
         <form action="/login" method="POST">
             <div class="form-group">
-                <label for="username">用户名</label>
+                <label for="username">UserName:</label>
                 <input type="text" class="form-control" name="username" required
                     placeholder="Please enter your user name">
             </div>
             <div class="form-group">
-                <label for="password">密码</label>
-                <input type="password" class="form-control" name="password" placeholder="Please enter your password">
+                <label for="password">Password:</label>
+                <input type="password" class="form-control" name="password" required placeholder="Please enter your password">
             </div>
             <input type="hidden" name="redirect" value="{{.redirect}}"/>
-            <button type="submit" class="btn btn-success">Login</button>
+            <button type="submit" class="btn btn-primary">Login</button>
         </form>
     </div>
 </body>

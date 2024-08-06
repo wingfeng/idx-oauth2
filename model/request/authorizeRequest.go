@@ -13,6 +13,7 @@ type AuthorizeRequest struct {
 	ResponseMode        string `form:"response_mode"` //fragment, query,form_post
 	CodeChallenge       string `form:"code_challenge"`
 	CodeChallengeMethod string `form:"code_challenge_method"`
+	Issuer              string `form:"-"`
 }
 
 func (req *AuthorizeRequest) ResponseCode() bool {

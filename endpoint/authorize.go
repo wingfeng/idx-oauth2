@@ -36,24 +36,7 @@ func (ctrl *AuthorizeController) Authorize(ctx *gin.Context) {
 		})
 		return
 	}
-	// authorizationHeader := ctx.GetHeader("Authorization")
-	// slog.Info("Authorization", "Authorization", authorizationHeader)
-	// if !strings.EqualFold(authorizationHeader, "") {
-	// 	clientId, clientSecret, ok := ctx.Request.BasicAuth()
-	// 	slog.Info("Authorization", "Authorization", authorizationHeader, "clientId", clientId, "clientSecret", clientSecret, "ok", ok)
-	// 	if ok {
-	// 		authorizeRequst.ClientId = clientId
-	// 		authorizeRequst.ClientSecret = clientSecret
-	// 	}
 
-	// }
-	// if !ctrl.ClientService.ValidateSecret(req.ClientId, req.ClientSecret) {
-	// 	ctx.JSON(401, gin.H{
-	// 		"error":             "invalid Request",
-	// 		"error_description": "invalid client id or secret",
-	// 	})
-	// 	return
-	// }
 	client, err := ctrl.ClientService.GetClient(req.ClientId)
 	if err != nil || client == nil {
 		ctx.JSON(401, gin.H{
@@ -102,6 +85,7 @@ func (ctrl *AuthorizeController) Authorize(ctx *gin.Context) {
 		return
 	}
 
+	req.Issuer = getIssuer(ctx, ctrl.Config)
 	authorization := ctrl.AuthorizeService.CreateAuthorization(req, string(principle))
 
 	callbackQuery := make(url.Values)

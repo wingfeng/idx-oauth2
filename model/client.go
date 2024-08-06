@@ -13,7 +13,7 @@ type IClient interface {
 	GetRequirePKCE() bool
 	GetRedirectUris() []string
 	GetPostLogoutUris() []string
-	GetSecret() string
+	GetSecret() []string
 }
 
 type Client struct {
@@ -58,8 +58,8 @@ func (c *Client) GetRedirectUris() []string {
 func (c *Client) GetPostLogoutUris() []string {
 	return c.PostLogoutUris
 }
-func (c *Client) GetSecret() string {
-	return c.Secret
+func (c *Client) GetSecret() []string {
+	return []string{c.Secret}
 }
 func (c *Client) GetRequirePKCE() bool {
 	return c.RequirePKCE
