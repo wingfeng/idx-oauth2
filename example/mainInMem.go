@@ -86,18 +86,13 @@ func main() {
 	router.GET("/", endpoint.Index)
 	router.GET("/index.html", endpoint.Index)
 
-	router.GET("/logout", endpoint.Logout)
-	router.POST("/logout", endpoint.Logout)
-
 	group := router.Group(config.EndpointGroup)
 
 	tokenService, jwks := buildTokenService(config)
 	clientRepo := buildClientRepo()
 	authRepo := repo.NewInMemoryAuthorizeRepository()
 
-	consentRepo := &repo.InMemoryConsentRepository{
-		Consents: make(map[string]map[string][]string),
-	}
+	consentRepo := repo.NewInMemoryConsentRepository()
 
 	tenant := core.NewTenant(config, buildUserRepo(), clientRepo, authRepo, consentRepo, tokenService, jwks)
 
@@ -110,7 +105,7 @@ func main() {
 func buildClientRepo() *repo.InMemoryClientRepository {
 	secret, _ := utils.HashPassword("secret")
 	clientRepo := repo.NewInMemoryClientRepository([]model.Client{
-		{Id: "client1", ClientId: "code_client", ClientName: "client1", RequireConsent: true, ClientScope: "openid email profile ", Secret: "", GrantTypes: []string{"authorization_code", "refresh_token", "password"}, RedirectUris: []string{"http://localhost:9000/callback", "https://oauthdebugger.com/debug"}},
+		{Id: "client1", ClientId: "code_client", ClientName: "client1", RequireConsent: true, ClientScope: "openid email profile ", Secret: secret, GrantTypes: []string{"authorization_code", "refresh_token", "password"}, RedirectUris: []string{"http://localhost:9000/callback", "https://oauthdebugger.com/debug", "http://localhost/"}},
 		{Id: "client2", ClientId: "implicit_client", ClientName: "client2", RequireConsent: true, ClientScope: "openid email profile ", Secret: secret, GrantTypes: []string{"implicit"}, RedirectUris: []string{"http://localhost:9000/callback"}},
 		{Id: "client3", ClientId: "hybrid_client", ClientName: "client3", RequireConsent: true, ClientScope: "openid email profile ", Secret: "", GrantTypes: []string{"authorization_code", "implicit"}, RedirectUris: []string{"http://localhost:9000/callback", "https://oauthdebugger.com/debug"}},
 		{Id: "client4", ClientId: "password_client", ClientName: "client4", RequireConsent: true, ClientScope: "openid email profile ", Secret: secret, GrantTypes: []string{"password"}, RedirectUris: []string{"http://localhost:9000/callback"}},

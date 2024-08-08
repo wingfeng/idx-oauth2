@@ -1,6 +1,23 @@
 # Golang OAuth 2.0 Server Implement IDX-OAUTH2
 
+[![GitHub stars](https://img.shields.io/github/stars/wingfeng/idx-oauth2.svg)](https://github.com/wingfeng/idx-oauth2/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/wingfeng/idx-oauth2.svg)](https://github.com/wingfeng/idx-oauth2/network/members)
+[![GitHub issues](https://img.shields.io/github/issues/wingfeng/idx-oauth2.svg)](https://github.com/wingfeng/idx-oauth2/issues)
+
+## About  
+
 This project is for who want to build your own OAUTH2 and OIDC server with golang,It use for oauth2 to support OIDC and device code grant type. Build your own repository to store usres and clients authorizations. the repository provided in this module is just a sample. and it is not recommended to use it in production.  
+
+## Features  
+	
+OAuth2.0 Server Implementation, Support Grant Types:  
+
+* Authorization Code Grant Type
+* Implicit Grant Type
+* Resource Owner Password Credentials Grant Type
+* Client Credentials Grant Type
+* Device Code Grant Type  
+Support OIDC  
 
 ## Quick Start  
 
@@ -65,8 +82,7 @@ func main() {
 	router.GET("/", endpoint.Index)
 	router.GET("/index.html", endpoint.Index)
 
-	router.GET("/logout", endpoint.Logout)
-	router.POST("/logout", endpoint.Logout)
+
 	group := router.Group("/oauth2")
     // build your own token service
 	tokenService, jwks := buildTokenService(config)
@@ -90,7 +106,7 @@ func main() {
 
 ### 3. test it with the example client  
 
-you can find the example client in ./example/client/main.go  it is the sample client for oauth2 from <https://github.com/go-oauth2/oauth2>, open another terminal to run followed command  
+  you can find the example client in ./example/client/main.go  it is the sample client for oauth2 from <https://github.com/go-oauth2/oauth2>, open another terminal to run followed command  
 
 ```cmd
     cd ./example/client
@@ -99,4 +115,11 @@ you can find the example client in ./example/client/main.go  it is the sample cl
 
 ### 4. test it with the example client  
 
-open your browser with <http://localhost:9000/>
+* Open your browser with <http://localhost:9000/>  
+* You can also test it with <https://github.com/ECNU/Open-OAuth2Playground> or <https://oauthdebugger.com/debug>  
+* Use [Jmeter](https://jmeter.apache.org/) to load the oauth2.jmx file from ./test folder to test this oauth2 server.
+
+[![Go Reference](https://pkg.go.dev/badge/github.com/wingfeng/idx-oauth2.svg)](https://pkg.go.dev/github.com/wingfeng/idx-oauth2) 
+
+## License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

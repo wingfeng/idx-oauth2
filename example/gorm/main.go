@@ -119,8 +119,6 @@ func main() {
 	router.GET("/index.html", endpoint.Index)
 	router.GET("/index", endpoint.Index)
 
-	router.GET("/logout", endpoint.Logout)
-	router.POST("/logout", endpoint.Logout)
 	router.Static("/img", "../../static/img")
 	router.LoadHTMLGlob("../../static/*.html")
 

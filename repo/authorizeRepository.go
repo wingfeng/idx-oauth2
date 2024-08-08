@@ -1,6 +1,10 @@
 package repo
 
-import "github.com/wingfeng/idx-oauth2/model"
+import (
+	"sync"
+
+	"github.com/wingfeng/idx-oauth2/model"
+)
 
 type AuthorizationRepository interface {
 	Save(authorization *model.Authorization)
@@ -13,19 +17,30 @@ type AuthorizationRepository interface {
 }
 
 type InMemoryAuthorizeRepository struct {
+	lock           sync.RWMutex
 	Authorizations map[string]*model.Authorization
 }
 
 func NewInMemoryAuthorizeRepository() *InMemoryAuthorizeRepository {
-	return &InMemoryAuthorizeRepository{Authorizations: make(map[string]*model.Authorization)}
+	return &InMemoryAuthorizeRepository{
+		lock:           sync.RWMutex{},
+		Authorizations: make(map[string]*model.Authorization),
+	}
 }
 func (repo *InMemoryAuthorizeRepository) Save(authorization *model.Authorization) {
+	repo.lock.Lock()
+	defer repo.lock.Unlock()
 	repo.Authorizations[authorization.Id] = authorization
 }
 func (repo *InMemoryAuthorizeRepository) Remove(authorization *model.Authorization) {
+	repo.lock.Lock()
+	defer repo.lock.Unlock()
 	delete(repo.Authorizations, authorization.Id)
 }
 func (repo *InMemoryAuthorizeRepository) GetAuthorizationByAccessToken(token string) *model.Authorization {
+	repo.lock.RLock()
+	defer repo.lock.RUnlock()
+
 	for _, authorization := range repo.Authorizations {
 		if authorization.AccessToken == token {
 			return authorization
@@ -34,6 +49,8 @@ func (repo *InMemoryAuthorizeRepository) GetAuthorizationByAccessToken(token str
 	return nil
 }
 func (repo *InMemoryAuthorizeRepository) GetAuthorizationByCode(code string) *model.Authorization {
+	repo.lock.RLock()
+	defer repo.lock.RUnlock()
 	for _, authorization := range repo.Authorizations {
 		if authorization.Code == code {
 			return authorization
@@ -42,6 +59,8 @@ func (repo *InMemoryAuthorizeRepository) GetAuthorizationByCode(code string) *mo
 	return nil
 }
 func (repo *InMemoryAuthorizeRepository) GetAuthorizationByRefreshToken(token string) *model.Authorization {
+	repo.lock.RLock()
+	defer repo.lock.RUnlock()
 	for _, authorization := range repo.Authorizations {
 		if authorization.RefreshToken == token {
 			return authorization
@@ -50,6 +69,8 @@ func (repo *InMemoryAuthorizeRepository) GetAuthorizationByRefreshToken(token st
 	return nil
 }
 func (repo *InMemoryAuthorizeRepository) GetAuthorizationByDeviceCode(device_code string) *model.Authorization {
+	repo.lock.RLock()
+	defer repo.lock.RUnlock()
 	for _, authorization := range repo.Authorizations {
 		if authorization.DeviceCode == device_code {
 			return authorization
@@ -58,6 +79,8 @@ func (repo *InMemoryAuthorizeRepository) GetAuthorizationByDeviceCode(device_cod
 	return nil
 }
 func (repo *InMemoryAuthorizeRepository) GetAuthorizationByUserCode(user_code string) *model.Authorization {
+	repo.lock.RLock()
+	defer repo.lock.RUnlock()
 	for _, authorization := range repo.Authorizations {
 		if authorization.UserCode == user_code {
 			return authorization

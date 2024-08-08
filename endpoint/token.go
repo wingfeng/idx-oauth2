@@ -71,6 +71,13 @@ func (ctrl *TokenController) PostToken(ctx *gin.Context) {
 		}
 
 		authorization = ctrl.AuthorizeService.GetAuthorizationByCode(req.Code)
+		if authorization == nil {
+			ctx.JSON(400, gin.H{
+				"error": "invalid code",
+				"code":  req.Code,
+			})
+			return
+		}
 		if len(authorization.CodeChallenge) > 0 {
 			switch authorization.CodeChallengeMethod {
 			case "S256":
@@ -113,6 +120,13 @@ func (ctrl *TokenController) PostToken(ctx *gin.Context) {
 		}
 
 		authorization = ctrl.AuthorizeService.GetAuthorizationByRefreshToken(req.RefreshToken)
+		if authorization == nil {
+			ctx.JSON(400, gin.H{
+				"error":        "invalid RefreshToken",
+				"RefreshToken": req.RefreshToken,
+			})
+			return
+		}
 	case string(constants.DeviceCode):
 		var req request.DeviceCodeTokenRequest
 		if err := ctx.ShouldBind(&req); err != nil {

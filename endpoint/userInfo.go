@@ -1,6 +1,8 @@
 package endpoint
 
 import (
+	"strings"
+
 	"github.com/wingfeng/idx-oauth2/service"
 
 	"github.com/gin-gonic/gin"
@@ -18,7 +20,12 @@ func (c *UserInfoController) GetUserInfo(ctx *gin.Context) {
 		return
 	}
 
-	token := authHeader[7:]
+	headers := strings.Split(authHeader, " ")
+	if headers[0] != "Bearer" || len(headers) != 2 {
+		ctx.AbortWithStatus(401)
+		return
+	}
+	token := headers[1]
 	//validate access token and get principal
 
 	authorize := c.AuthorizeService.GetAuthorizationByAccessToken(token)

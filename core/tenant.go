@@ -25,6 +25,7 @@ type Tenant struct {
 	deviceCtrl     *endpoint.DeviceCodeController
 	consentCtrl    *endpoint.ConsentController
 	loginCtrl      *endpoint.LoginController
+	logoutCtrl     *endpoint.LogoutController
 }
 
 func NewTenant(config *conf.Config,
@@ -76,6 +77,7 @@ func NewTenant(config *conf.Config,
 	}
 	s.consentCtrl = &endpoint.ConsentController{ConsentService: consentService}
 	s.loginCtrl = &endpoint.LoginController{UserService: userService}
+	s.logoutCtrl = &endpoint.LogoutController{ClientService: clientService}
 	return s
 }
 
@@ -107,4 +109,6 @@ func (s *Tenant) InitOAuth2Router(group *gin.RouterGroup, router *gin.Engine) {
 
 	router.POST("/login", s.loginCtrl.PostLogin)
 	router.GET("/login", s.loginCtrl.LoginGet)
+	router.POST("/logout", s.logoutCtrl.Logout)
+	router.GET("/logout", s.logoutCtrl.Logout)
 }
