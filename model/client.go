@@ -2,17 +2,33 @@ package model
 
 import "strings"
 
+// IClient defines the client interface, including a series of operations related to client configuration.
 type IClient interface {
+	// GetScopes returns a list of scopes that the client is allowed to access.
 	GetScopes() []string
 
+	// GetClientId returns the unique identifier of the client.
 	GetClientId() string
-	GetClientScope() string
+
+	// GetClientName returns the name of the client.
 	GetClientName() string
+
+	// GetGrantTypes returns a list of authorization types supported by the client.
 	GetGrantTypes() []string
+
+	// GetRequireConsent returns whether user consent is required.
 	GetRequireConsent() bool
+
+	// GetRequirePKCE returns whether PKCE (Proof Key for Code Exchange) is required.
 	GetRequirePKCE() bool
+
+	// GetRedirectUris returns a list of URIs to which the client redirects.
 	GetRedirectUris() []string
+
+	// GetPostLogoutUris returns a list of URIs to which the client redirects after logout.
 	GetPostLogoutUris() []string
+
+	// GetSecret returns a list of secrets associated with the client.
 	GetSecret() []string
 }
 
@@ -40,9 +56,7 @@ func (c *Client) GetScopes() []string {
 func (c *Client) GetClientId() string {
 	return c.ClientId
 }
-func (c *Client) GetClientScope() string {
-	return c.ClientScope
-}
+
 func (c *Client) GetClientName() string {
 	return c.ClientName
 }
@@ -59,7 +73,11 @@ func (c *Client) GetPostLogoutUris() []string {
 	return c.PostLogoutUris
 }
 func (c *Client) GetSecret() []string {
-	return []string{c.Secret}
+	if strings.EqualFold(c.Secret, "") {
+		return []string{}
+	} else {
+		return []string{c.Secret}
+	}
 }
 func (c *Client) GetRequirePKCE() bool {
 	return c.RequirePKCE

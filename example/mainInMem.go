@@ -8,16 +8,15 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
-	"strings"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"
+	oauth2 "github.com/wingfeng/idx-oauth2"
 	"github.com/wingfeng/idx-oauth2/conf"
 	constants "github.com/wingfeng/idx-oauth2/const"
-	"github.com/wingfeng/idx-oauth2/core"
 	"github.com/wingfeng/idx-oauth2/endpoint"
 	"github.com/wingfeng/idx-oauth2/model"
 	"github.com/wingfeng/idx-oauth2/repo"
@@ -38,49 +37,8 @@ func main() {
 
 	store := cookie.NewStore([]byte("secret"))
 	router.Use(sessions.Sessions("mysession", store))
+	router.Use(endpoint.AuthMiddleware)
 
-	router.Use(func(ctx *gin.Context) {
-		principle := ""
-		session := sessions.Default(ctx)
-		v := session.Get(endpoint.Const_Principle)
-		if v != nil {
-			principle = v.(string)
-		}
-		if !strings.EqualFold(principle, "") {
-			ctx.Set(endpoint.Const_Principle, principle)
-		}
-		slog.Info("User logged in ", "user", principle)
-
-		ignorePaths := []string{"/login", "/oauth2/token", "/oauth2/authorize", "/oauth2/device",
-			"/.well-known/openid-configuration",
-			"/.well-known/jwks",
-			"/oauth2/userinfo",
-			"/oauth2/introspect",
-			"/index",
-			"/",
-			"/index.html",
-		}
-
-		for _, ignorePath := range ignorePaths {
-			if ctx.Request.URL.Path == ignorePath {
-				ctx.Next()
-				return
-			}
-		}
-
-		if strings.EqualFold(principle, "") {
-
-			link := ctx.Request.URL.String()
-			slog.Info("Principle empty begin redirect", "principle", principle, "link", link)
-			ctx.HTML(401, "login.html", gin.H{
-				"redirect": link,
-			})
-
-			return
-		}
-
-		ctx.Next()
-	})
 	router.Static("/img", "../static/img")
 	router.LoadHTMLGlob("../static/*.html")
 	router.GET("/", endpoint.Index)
@@ -94,7 +52,7 @@ func main() {
 
 	consentRepo := repo.NewInMemoryConsentRepository()
 
-	tenant := core.NewTenant(config, buildUserRepo(), clientRepo, authRepo, consentRepo, tokenService, jwks)
+	tenant := oauth2.NewTenant(config, buildUserRepo(), clientRepo, authRepo, consentRepo, tokenService, jwks)
 
 	tenant.InitOAuth2Router(group, router)
 

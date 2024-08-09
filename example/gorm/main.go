@@ -18,7 +18,8 @@ import (
 	idxgorm "github.com/wingfeng/idx-gorm"
 	"github.com/wingfeng/idx-gorm/models"
 	"github.com/wingfeng/idx-gorm/repo"
-	"github.com/wingfeng/idx-oauth2/core"
+	oauth2 "github.com/wingfeng/idx-oauth2"
+
 	"github.com/wingfeng/idx-oauth2/endpoint"
 
 	"github.com/wingfeng/idx-oauth2/conf"
@@ -61,46 +62,7 @@ func main() {
 	store := gormsessions.NewStore(db, true, []byte("secret"))
 	router.Use(sessions.Sessions("mysession", store))
 
-	router.Use(func(ctx *gin.Context) {
-		session := sessions.Default(ctx)
-		var principle string
-		v := session.Get(endpoint.Const_Principle)
-		if v != nil {
-			principle = v.(string)
-		}
-		if !strings.EqualFold(principle, "") {
-			ctx.Set(endpoint.Const_Principle, principle)
-		}
-
-		ignorePaths := []string{"/login", "/oauth2/token", "/oauth2/authorize", "/oauth2/device",
-			"/.well-known/openid-configuration",
-			"/.well-known/jwks",
-			"/oauth2/userinfo",
-			"/oauth2/introspect",
-			"/index",
-			"/",
-			"/index.html",
-		}
-		for _, ignorePath := range ignorePaths {
-			if ctx.Request.URL.Path == ignorePath {
-				ctx.Next()
-				return
-			}
-		}
-
-		if strings.EqualFold(principle, "") {
-
-			link := ctx.Request.URL.String()
-			slog.Info("Principle empty begin redirect", "principle", principle, "link", link)
-			ctx.HTML(401, "login.html", gin.H{
-				"redirect": link,
-			})
-
-			return
-		}
-
-		ctx.Next()
-	})
+	router.Use(endpoint.AuthMiddleware)
 	group := router.Group(config.EndpointGroup)
 
 	authRepo := repo.NewAuthorizationRepository(db)
@@ -108,7 +70,7 @@ func main() {
 	consentRepo := repo.NewConsentRepository(db)
 	clientRepo := repo.NewClientRepository(db)
 	tokenService, jwks := buildTokenService(config, userRepo)
-	tenant := core.NewTenant(config, userRepo,
+	tenant := oauth2.NewTenant(config, userRepo,
 		clientRepo,
 		authRepo,
 		consentRepo,

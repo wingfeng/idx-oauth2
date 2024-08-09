@@ -1,29 +1,28 @@
 package test
 
 import (
-	"strings"
-
 	"github.com/gin-contrib/sessions"
-	"github.com/gin-contrib/sessions/cookie"
+	"github.com/gin-contrib/sessions/memstore"
 	"github.com/golang-jwt/jwt"
+	oauth2 "github.com/wingfeng/idx-oauth2"
 	"github.com/wingfeng/idx-oauth2/conf"
 	constants "github.com/wingfeng/idx-oauth2/const"
-	"github.com/wingfeng/idx-oauth2/core"
+
 	"github.com/wingfeng/idx-oauth2/endpoint"
 	"github.com/wingfeng/idx-oauth2/model"
 	"github.com/wingfeng/idx-oauth2/repo"
-	"github.com/wingfeng/idx-oauth2/service"
 	"github.com/wingfeng/idx-oauth2/service/impl"
 	"github.com/wingfeng/idx-oauth2/utils"
 
 	"github.com/gin-gonic/gin"
 )
 
-func init_router() (*gin.Engine, *core.Tenant) {
+func init_router() (*gin.Engine, *oauth2.Tenant) {
 	config := conf.DefaultConfig()
 	secret, _ := utils.HashPassword("secret")
 	clientRepo := repo.NewInMemoryClientRepository([]model.Client{
-		{Id: "client1", ClientId: "code_client", ClientName: "client1", RequireConsent: false, ClientScope: "openid email profile ", Secret: "", GrantTypes: []string{"authorization_code", "refresh_token"}, RedirectUris: []string{"http://localhost:9000/callback"}},
+		{Id: "client1", ClientId: "code_client", ClientName: "client1", RequireConsent: false, ClientScope: "openid email profile ", Secret: secret, GrantTypes: []string{"authorization_code", "refresh_token"}, RedirectUris: []string{"http://localhost:9000/callback"}},
+		{Id: "client1", ClientId: "nosecret_client", ClientName: "client1", RequireConsent: false, ClientScope: "openid email profile ", GrantTypes: []string{"authorization_code", "refresh_token"}, RedirectUris: []string{"http://localhost:9000/callback"}},
 		{Id: "client2", ClientId: "implicit_client", ClientName: "client2", ClientScope: "openid email profile ", Secret: secret, GrantTypes: []string{"implicit"}, RedirectUris: []string{"http://localhost:9000/callback"}},
 		{Id: "client3", ClientId: "hybrid_client", ClientName: "client3", ClientScope: "openid email profile ", Secret: secret, GrantTypes: []string{"authorization_code", "implicit"}, RedirectUris: []string{"http://localhost:9000/callback"}},
 		{Id: "client4", ClientId: "password_client", ClientName: "client4", ClientScope: "openid email profile ", Secret: secret, GrantTypes: []string{"password"}, RedirectUris: []string{"http://localhost:9000/callback"}},
@@ -31,24 +30,12 @@ func init_router() (*gin.Engine, *core.Tenant) {
 	})
 	router := gin.Default()
 	router.LoadHTMLGlob("../static/*.html")
-	group := router.Group(config.EndpointGroup)
-	store := cookie.NewStore([]byte("secret"))
+
+	store := memstore.NewStore([]byte("secret"))
 	router.Use(sessions.Sessions("mysession", store))
+	router.Use(endpoint.AuthMiddleware)
+	group := router.Group(config.EndpointGroup)
 
-	group.Use(func(ctx *gin.Context) {
-		//		ctx.Set(endpoint.Const_Principle, "admin")
-		session := sessions.Default(ctx)
-		var principle string
-		v := session.Get(endpoint.Const_Principle)
-		if v != nil {
-			principle = v.(string)
-		}
-		if !strings.EqualFold(principle, "") {
-			ctx.Set(endpoint.Const_Principle, principle)
-		}
-
-		ctx.Next()
-	})
 	tokenService := impl.NewJwtTokenService(jwt.SigningMethodHS256, []byte("mysecret"), func(userName string, scope string) map[string]interface{} {
 		return map[string]interface{}{
 			"role": "manager",
@@ -56,16 +43,11 @@ func init_router() (*gin.Engine, *core.Tenant) {
 	})
 	tokenService.TokenLifeTime = config.TokenLifeTime
 
-	userService := &service.DefaultUserService{UserRepository: buildUserRepo()}
 	authRepo := repo.NewInMemoryAuthorizeRepository()
-	consentRepo := &repo.InMemoryConsentRepository{
-		Consents: make(map[string]map[string][]string),
-	}
+	consentRepo := repo.NewInMemoryConsentRepository()
 
-	tenant := core.NewTenant(config, buildUserRepo(), clientRepo, authRepo, consentRepo, tokenService, nil)
+	tenant := oauth2.NewTenant(config, buildUserRepo(), clientRepo, authRepo, consentRepo, tokenService, nil)
 
-	loginCtrl := &endpoint.LoginController{UserService: userService}
-	router.POST("/login", loginCtrl.PostLogin)
 	tenant.InitOAuth2Router(group, router)
 
 	return router, tenant

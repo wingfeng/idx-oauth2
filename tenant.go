@@ -1,4 +1,4 @@
-package core
+package oauth2
 
 import (
 	"github.com/wingfeng/idx-oauth2/conf"
@@ -17,15 +17,18 @@ type Tenant struct {
 	ConsentService   service.ConsentService
 	Config           *conf.Config
 	//controller
-	authorizeCtrl  *endpoint.AuthorizeController
-	tokenCtrl      *endpoint.TokenController
-	wellKnowCtrl   *endpoint.WellknownController
-	userInfoCtrl   *endpoint.UserInfoController
-	introspectCtrl *endpoint.IntrospectController
-	deviceCtrl     *endpoint.DeviceCodeController
-	consentCtrl    *endpoint.ConsentController
-	loginCtrl      *endpoint.LoginController
-	logoutCtrl     *endpoint.LogoutController
+	authorizeCtrl    *endpoint.AuthorizeController
+	tokenCtrl        *endpoint.TokenController
+	wellKnowCtrl     *endpoint.WellknownController
+	userInfoCtrl     *endpoint.UserInfoController
+	introspectCtrl   *endpoint.IntrospectController
+	deviceCtrl       *endpoint.DeviceCodeController
+	consentCtrl      *endpoint.ConsentController
+	loginCtrl        *endpoint.LoginController
+	logoutCtrl       *endpoint.LogoutController
+	revokeCtrl       *endpoint.RevokeController
+	endSessionCtrl   *endpoint.EndSessionController
+	checkSessionCtrl *endpoint.CheckSessionController
 }
 
 func NewTenant(config *conf.Config,
@@ -75,6 +78,14 @@ func NewTenant(config *conf.Config,
 		ClientService:        clientService,
 		Config:               config,
 	}
+	s.revokeCtrl = &endpoint.RevokeController{
+		AuthorizeService: s.AuthorizeService,
+		ClientService:    s.ClientService,
+		TokenService:     s.TokenService,
+	}
+	s.endSessionCtrl = &endpoint.EndSessionController{ClientService: clientService}
+	s.checkSessionCtrl = &endpoint.CheckSessionController{}
+
 	s.consentCtrl = &endpoint.ConsentController{ConsentService: consentService}
 	s.loginCtrl = &endpoint.LoginController{UserService: userService}
 	s.logoutCtrl = &endpoint.LogoutController{ClientService: clientService}
@@ -107,6 +118,10 @@ func (s *Tenant) InitOAuth2Router(group *gin.RouterGroup, router *gin.Engine) {
 
 	group.POST(config.ConsentEndpoint, s.consentCtrl.PostConsent)
 
+	group.POST(config.RevocationEndpoint, s.revokeCtrl.PostRevoke)
+	group.GET(config.EndSessionEndpoint, s.endSessionCtrl.EndSession)
+
+	group.GET(config.CheckSessionIframe, s.checkSessionCtrl.CheckSession)
 	router.POST("/login", s.loginCtrl.PostLogin)
 	router.GET("/login", s.loginCtrl.LoginGet)
 	router.POST("/logout", s.logoutCtrl.Logout)

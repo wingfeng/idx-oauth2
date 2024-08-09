@@ -9,9 +9,30 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+// UserService defines the interface for user service, including user retrieval and password verification functionalities.
 type UserService interface {
+	// GetUser retrieves user information by user ID.
+	// Parameters:
+	//   userId: The user's ID.
+	// Returns:
+	//   IUser: User information interface.
+	//   error: An error if the operation fails.
 	GetUser(userId string) (model.IUser, error)
+
+	// GetUserByName retrieves user information by username.
+	// Parameters:
+	//   userName: The username.
+	// Returns:
+	//   IUser: User information interface.
+	//   error: An error if the operation fails.
 	GetUserByName(userName string) (model.IUser, error)
+
+	// VerifyPassword checks whether the provided username and password match.
+	// Parameters:
+	//   userName: The username.
+	//   password: The password.
+	// Returns:
+	//   bool: True if the password matches, false otherwise.
 	VerifyPassword(userName string, password string) bool
 }
 

@@ -31,10 +31,7 @@ func (ctrl *TokenController) PostToken(ctx *gin.Context) {
 		ctx.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
-	// if err := ctrl.validateRequest(&req); err != nil {
-	// 	ctx.JSON(400, gin.H{"error": err.Error()})
-	// 	return
-	// }
+
 	// validate client secret
 	// support client_secret_basic token endpoint authentication
 	authorizationHeader := ctx.GetHeader("Authorization")

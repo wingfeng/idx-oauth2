@@ -2,8 +2,22 @@ package repo
 
 import "github.com/wingfeng/idx-oauth2/model"
 
+// UserRepository defines the interface for user data operations.
 type UserRepository interface {
+	// GetUser retrieves user information by user ID.
+	// Parameters:
+	//   userId - The unique identifier of the user.
+	// Returns:
+	//   IUser interface, representing user information.
+	//   error - An error message, if the operation fails.
 	GetUser(userId string) (model.IUser, error)
+
+	// GetUserByName retrieves user information by username.
+	// Parameters:
+	//   userName - The username.
+	// Returns:
+	//   IUser interface, representing user information.
+	//   error - An error message, if the operation fails.
 	GetUserByName(userName string) (model.IUser, error)
 }
 

@@ -41,6 +41,13 @@ type ClientService interface {
 	//   clientRepository - The client repository interface.
 	// This method is used for dependency injection to access the client data store when needed.
 	SetClientRepository(clientRepository repo.ClientRepository)
+	// ValidateLogoutUri validates the logout URI.
+	//
+	// clientId is the client identifier used to ensure the URI belongs to the correct client.
+	// url is the logout URI to validate.
+	//
+	// The function returns an error if the URI is invalid or unsafe.
+	ValidateLogoutUri(clientId string, url string) error
 }
 
 type DefaultClientService struct {
@@ -77,7 +84,19 @@ func (cs *DefaultClientService) ValidateSecret(clientId string, secret string) b
 
 	return false
 }
-
+func (cs *DefaultClientService) ValidateLogoutUri(clientId string, url string) error {
+	client, err := cs.ClientRepository.GetClientByClientID(clientId)
+	if client == nil || err != nil {
+		return fmt.Errorf("client not found %s", clientId)
+	}
+	uris := client.GetPostLogoutUris()
+	for _, uri := range uris {
+		if strings.EqualFold(uri, url) {
+			return nil
+		}
+	}
+	return fmt.Errorf("invalid post logout url %s", url)
+}
 func (cs *DefaultClientService) ValidateClient(client model.IClient) error {
 	//Validate GrantType
 	//Validate Scopes
@@ -93,8 +112,8 @@ func (cs *DefaultClientService) ValidateClient(client model.IClient) error {
 	}
 
 	if !ValidateScope(orgClient, client.GetScopes()) {
-		slog.Error("Invalid scope", "Scope", client.GetClientScope())
-		return fmt.Errorf("invalid scope %s", client.GetClientScope())
+		slog.Error("Invalid scope", "Scope", strings.Join(client.GetScopes(), " "))
+		return fmt.Errorf("invalid scope %s", strings.Join(client.GetScopes(), " "))
 	}
 	for _, gt := range client.GetGrantTypes() {
 		if !ValidateGrantType(orgClient, gt) {

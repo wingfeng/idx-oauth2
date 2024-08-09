@@ -2,16 +2,23 @@ package utils
 
 import "golang.org/x/crypto/bcrypt"
 
+// HashPassword generates a bcrypt hash for the given password.
+// This function takes a password string as input, and returns the hashed password string and possible errors.
+// The purpose of hashing the password is to securely store it, making it difficult for attackers to obtain the plaintext password.
 func HashPassword(password string) (string, error) {
-	// Convert the password string to a byte slice
+	// Convert the password string to a byte slice for subsequent hashing operations.
 	bytes := []byte(password)
 
-	// Generate the hash with bcrypt
+	// Generate the hash with bcrypt.
+	// bcrypt is a secure password hashing algorithm designed to be slow and resource-intensive, thus resisting brute force attacks.
+	// Here, we use the default cost setting provided by bcrypt for balancing security and performance.
+	// If an error occurs during the hashing process, an empty string and the error are returned.
 	hashedBytes, err := bcrypt.GenerateFromPassword(bytes, bcrypt.DefaultCost)
 	if err != nil {
 		return "", err
 	}
 
-	// Return the hashed password as a string
+	// Return the hashed password as a string.
+	// Storing the hashed password instead of the plaintext password greatly enhances system security.
 	return string(hashedBytes), nil
 }

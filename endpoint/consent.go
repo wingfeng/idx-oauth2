@@ -19,6 +19,7 @@ func (ctrl *ConsentController) PostConsent(ctx *gin.Context) {
 		ctx.JSON(401, gin.H{
 			"error": "Unauthorized",
 		})
+		return
 	}
 	client_id := ctx.PostForm("client_id")
 	slog.Debug("PostConsent", "client_id", client_id, "principle", principle, "scopes", scopes)

@@ -32,6 +32,7 @@ func (c *IntrospectController) GetIntrospect(ctx *gin.Context) {
 	result := &response.IntropectResponse{
 		Active:   true,
 		Scope:    auth.Scope,
+		Subject:  auth.Subject,
 		UserName: auth.PrincipalName,
 		ClientId: auth.ClientId,
 		Exp:      auth.ExpiresAt,
