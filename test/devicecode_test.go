@@ -17,7 +17,7 @@ import (
 
 func Test_DeviceCodeGrant(t *testing.T) {
 	router, tenant := init_router()
-	recorder := httptest.NewRecorder()
+
 	query := make(url.Values)
 
 	query.Add("grant_type", string(constants.DeviceCode))
@@ -28,7 +28,7 @@ func Test_DeviceCodeGrant(t *testing.T) {
 	req, _ := http.NewRequest("GET", link+"?"+query.Encode(), nil) // bytes.NewBufferString(query.Encode()))
 	//req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 
-	recorder = httptest.NewRecorder()
+	recorder := httptest.NewRecorder()
 	router.ServeHTTP(recorder, req)
 	t.Logf("Response:\n %s", recorder.Body.String())
 

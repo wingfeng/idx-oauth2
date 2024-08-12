@@ -21,8 +21,8 @@ const (
 
 var (
 	config = oauth2.Config{
-		ClientID:     "code_client",
-		ClientSecret: "secret",
+		ClientID:     "hybrid_client",
+		ClientSecret: "hybrid_secret",
 		Scopes:       []string{"openid profile email"},
 		RedirectURL:  "http://localhost:9000/callback",
 		Endpoint: oauth2.Endpoint{
@@ -101,7 +101,7 @@ func main() {
 	})
 
 	http.HandleFunc("/pwd", func(w http.ResponseWriter, r *http.Request) {
-		token, err := config.PasswordCredentialsToken(context.Background(), "user1", "password1")
+		token, err := config.PasswordCredentialsToken(context.Background(), "admin", "password1")
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return

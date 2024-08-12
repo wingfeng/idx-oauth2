@@ -3,6 +3,9 @@
 [![GitHub stars](https://img.shields.io/github/stars/wingfeng/idx-oauth2.svg)](https://github.com/wingfeng/idx-oauth2/stargazers)
 [![GitHub forks](https://img.shields.io/github/forks/wingfeng/idx-oauth2.svg)](https://github.com/wingfeng/idx-oauth2/network/members)
 [![GitHub issues](https://img.shields.io/github/issues/wingfeng/idx-oauth2.svg)](https://github.com/wingfeng/idx-oauth2/issues)
+[![Go Reference](https://pkg.go.dev/badge/github.com/wingfeng/idx-oauth2.svg)](https://pkg.go.dev/github.com/wingfeng/idx-oauth2)
+[![ReportCard][reportcard-image]][reportcard-url]
+[![License](https://img.shields.io/npm/l/express.svg)](LICENSE)  
 
 ## About  
 
@@ -85,8 +88,9 @@ Open your browser with <http://localhost:9000/>
 * You can also test it with <https://github.com/ECNU/Open-OAuth2Playground> or <https://oauthdebugger.com/debug>  
 * Use [Jmeter](https://jmeter.apache.org/) to load the oauth2.jmx file from ./test folder to test this oauth2 server.
 
-[![Go Reference](https://pkg.go.dev/badge/github.com/wingfeng/idx-oauth2.svg)](https://pkg.go.dev/github.com/wingfeng/idx-oauth2) 
-
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+[reportcard-url]: https://goreportcard.com/report/github.com/wingfeng/idx-oauth2
+[reportcard-image]: https://goreportcard.com/badge/github.com/wingfeng/idx-oauth2

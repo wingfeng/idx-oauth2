@@ -15,7 +15,7 @@ import (
 
 func TestIntrospect(t *testing.T) {
 	router, _ := init_router()
-	recorder := httptest.NewRecorder()
+
 	query := make(url.Values)
 
 	query.Add("grant_type", "password")
@@ -27,7 +27,7 @@ func TestIntrospect(t *testing.T) {
 	req, _ := http.NewRequest("POST", "/oauth2/token", bytes.NewBufferString(query.Encode()))
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 
-	recorder = httptest.NewRecorder()
+	recorder := httptest.NewRecorder()
 	router.ServeHTTP(recorder, req)
 	t.Logf("Response:\n %s", recorder.Body.String())
 

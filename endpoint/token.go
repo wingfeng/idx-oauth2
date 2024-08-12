@@ -26,8 +26,8 @@ type TokenController struct {
 }
 
 func (ctrl *TokenController) PostToken(ctx *gin.Context) {
-	var req request.TokenRequest
-	if err := ctx.ShouldBind(&req); err != nil {
+	req := &request.TokenRequest{}
+	if err := ctx.ShouldBind(req); err != nil {
 		ctx.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
@@ -48,7 +48,10 @@ func (ctrl *TokenController) PostToken(ctx *gin.Context) {
 		ctx.JSON(401, gin.H{"error": "invalid_client or secret"})
 		return
 	}
-
+	if err := ctrl.validateRequest(req); err != nil {
+		ctx.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
 	var err error
 	var authorization *model.Authorization
 	switch req.GrantType {
@@ -104,6 +107,8 @@ func (ctrl *TokenController) PostToken(ctx *gin.Context) {
 		if err := ctx.ShouldBind(&req); err != nil {
 			ctx.JSON(400, gin.H{"error": err.Error()})
 		}
+		//set issuer before create authorization
+		req.Issuer = getIssuer(ctx, ctrl.Config)
 		authorization, err = ctrl.AuthorizeService.GetAuthorizeionByPassword(&req)
 		if err != nil {
 			ctx.JSON(400, gin.H{"error": err.Error()})
@@ -166,17 +171,16 @@ func (ctrl *TokenController) PostToken(ctx *gin.Context) {
 
 func (ctrl *TokenController) validateRequest(req *request.TokenRequest) error {
 
-	client := &model.Client{ClientId: req.ClientId, Secret: req.ClientSecret,
+	client, err := ctrl.ClientService.GetClient(req.ClientId)
 
-		ClientScope: req.Scope,
-		GrantTypes:  make([]string, 0),
-	}
-	client.GrantTypes = append(client.GrantTypes, req.GrantType)
-
-	err := ctrl.ClientService.ValidateClient(client)
 	if err != nil {
 
 		return fmt.Errorf("invalid request,Error: %s", err.Error())
+	}
+
+	if !service.ValidateGrantType(client, req.GrantType) {
+
+		return fmt.Errorf("invalid request,unsupported_grant_type %s", req.GrantType)
 	}
 
 	return nil

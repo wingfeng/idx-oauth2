@@ -92,8 +92,9 @@ func (srv *DefaultAuthorizeService) GetAuthorizationByRefreshToken(token string)
 		auth.AccessToken, _ = srv.TokenService.GenerateToken(auth)
 		auth.RefreshToken, _ = srv.TokenService.GenerateRefreshToken(auth)
 		auth.IDToken, _ = srv.TokenService.GenerateIDToken(auth)
+		srv.Save(auth)
 	}
-	srv.Save(auth)
+
 	return auth
 
 }
@@ -150,6 +151,7 @@ func (srv *DefaultAuthorizeService) GetAuthorizeionByPassword(request *request.P
 	}
 	auth := &model.Authorization{
 		Id:            srv.NewId(),
+		Issuer:        request.Issuer,
 		ClientId:      clientId,
 		GrantType:     string(constants.PasswordCredentials),
 		Scope:         request.Scope,

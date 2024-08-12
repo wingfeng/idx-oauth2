@@ -65,7 +65,7 @@ func buildClientRepo() *repo.InMemoryClientRepository {
 	clientRepo := repo.NewInMemoryClientRepository([]model.Client{
 		{Id: "client1", ClientId: "code_client", ClientName: "client1", RequireConsent: true, ClientScope: "openid email profile ", Secret: secret, GrantTypes: []string{"authorization_code", "refresh_token", "password"}, RedirectUris: []string{"http://localhost:9000/callback", "https://oauthdebugger.com/debug", "http://localhost/"}},
 		{Id: "client2", ClientId: "implicit_client", ClientName: "client2", RequireConsent: true, ClientScope: "openid email profile ", Secret: secret, GrantTypes: []string{"implicit"}, RedirectUris: []string{"http://localhost:9000/callback"}},
-		{Id: "client3", ClientId: "hybrid_client", ClientName: "client3", RequireConsent: true, ClientScope: "openid email profile ", Secret: "", GrantTypes: []string{"authorization_code", "implicit"}, RedirectUris: []string{"http://localhost:9000/callback", "https://oauthdebugger.com/debug"}},
+		{Id: "client3", ClientId: "hybrid_client", ClientName: "client3", RequireConsent: true, ClientScope: "openid email profile ", Secret: "", GrantTypes: []string{"authorization_code", "implicit", "password", string(constants.Refreshing), string(constants.ClientCredentials), string(constants.DeviceCode)}, RedirectUris: []string{"http://localhost:9000/callback", "https://oauthdebugger.com/debug"}},
 		{Id: "client4", ClientId: "password_client", ClientName: "client4", RequireConsent: true, ClientScope: "openid email profile ", Secret: secret, GrantTypes: []string{"password"}, RedirectUris: []string{"http://localhost:9000/callback"}},
 		{Id: "client5", ClientId: "device_code_client", ClientName: "client5", RequireConsent: true, ClientScope: "openid email profile ", Secret: secret, GrantTypes: []string{string(constants.DeviceCode)}, RedirectUris: []string{"http://localhost:9000/callback"}},
 	})
@@ -74,8 +74,8 @@ func buildClientRepo() *repo.InMemoryClientRepository {
 func buildUserRepo() repo.UserRepository {
 	pwdHash, _ := utils.HashPassword("password1")
 	return repo.NewInMemoryUserRepository([]*model.User{
-		{Id: "user1", UserName: "user1", Email: "user1@gmail.com", PasswordHash: pwdHash},
-		{Id: "user2", UserName: "user2", Email: "user2@gmail.com", PasswordHash: pwdHash},
+		{Id: "user1", UserName: "user1", Email: "user1@idx.local", PasswordHash: pwdHash},
+		{Id: "admin", UserName: "admin", Email: "admin@idx.local", PasswordHash: pwdHash},
 	})
 }
 func buildTokenService(config *conf.Config) (service.TokenService, *conf.JWKS) {

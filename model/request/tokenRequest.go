@@ -1,10 +1,10 @@
 package request
 
 type TokenRequest struct {
-	ClientId  string `form:"client_id" binding:"required"`
-	Scope     string `form:"scope"`
-	GrantType string `form:"grant_type" binding:"required"`
-
+	ClientId     string `form:"client_id" binding:"required"`
+	Scope        string `form:"scope"`
+	GrantType    string `form:"grant_type" binding:"required"`
+	Issuer       string `form:"-"`
 	ClientSecret string `form:"client_secret"`
 }
 
