@@ -5,11 +5,13 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/wingfeng/idx-oauth2/conf"
 	"github.com/wingfeng/idx-oauth2/service"
 )
 
 type ConsentController struct {
 	ConsentService service.ConsentService
+	Config         *conf.Config
 }
 
 func (ctrl *ConsentController) PostConsent(ctx *gin.Context) {

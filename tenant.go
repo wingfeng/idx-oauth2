@@ -24,6 +24,7 @@ type Tenant struct {
 	introspectCtrl   *endpoint.IntrospectController
 	deviceCtrl       *endpoint.DeviceCodeController
 	consentCtrl      *endpoint.ConsentController
+	indexCtrl        *endpoint.IndexController
 	loginCtrl        *endpoint.LoginController
 	logoutCtrl       *endpoint.LogoutController
 	revokeCtrl       *endpoint.RevokeController
@@ -87,17 +88,34 @@ func NewTenant(config *conf.Config,
 	s.checkSessionCtrl = &endpoint.CheckSessionController{}
 
 	s.consentCtrl = &endpoint.ConsentController{ConsentService: consentService}
-	s.loginCtrl = &endpoint.LoginController{UserService: userService}
-	s.logoutCtrl = &endpoint.LogoutController{ClientService: clientService}
+	s.loginCtrl = &endpoint.LoginController{
+		UserService: userService,
+		Config:      config,
+	}
+	s.logoutCtrl = &endpoint.LogoutController{ClientService: clientService, Config: config}
+	s.indexCtrl = &endpoint.IndexController{Config: config}
 	return s
 }
 
-func (s *Tenant) InitOAuth2Router(group *gin.RouterGroup, router *gin.Engine) {
+func (s *Tenant) InitOAuth2Router(router *gin.Engine, SessionHandler func(ctx *gin.Context)) {
 
 	config := s.Config
+	tenantGroup := router.Group(config.TenantPath)
+	if SessionHandler != nil {
+		tenantGroup.Use(SessionHandler)
+	}
+	tenantGroup.Use(endpoint.AuthMiddleware)
 
-	router.GET("/.well-known/openid-configuration", s.wellKnowCtrl.GetConfiguration)
-	router.GET(config.JwksURI, s.wellKnowCtrl.GetJWKS)
+	tenantGroup.GET("/.well-known/openid-configuration", s.wellKnowCtrl.GetConfiguration)
+	tenantGroup.GET(config.JwksURI, s.wellKnowCtrl.GetJWKS)
+	tenantGroup.POST("/login", s.loginCtrl.PostLogin)
+	tenantGroup.GET("/login", s.loginCtrl.LoginGet)
+	tenantGroup.POST("/logout", s.logoutCtrl.Logout)
+	tenantGroup.GET("/logout", s.logoutCtrl.Logout)
+
+	tenantGroup.GET("/", s.indexCtrl.Index)
+	tenantGroup.GET("/index.html", s.indexCtrl.Index)
+	group := tenantGroup.Group(config.EndpointGroup)
 
 	group.POST(config.AuthorizationEndpoint, s.authorizeCtrl.Authorize)
 	group.GET(config.AuthorizationEndpoint, s.authorizeCtrl.Authorize)
@@ -122,8 +140,5 @@ func (s *Tenant) InitOAuth2Router(group *gin.RouterGroup, router *gin.Engine) {
 	group.GET(config.EndSessionEndpoint, s.endSessionCtrl.EndSession)
 
 	group.GET(config.CheckSessionIframe, s.checkSessionCtrl.CheckSession)
-	router.POST("/login", s.loginCtrl.PostLogin)
-	router.GET("/login", s.loginCtrl.LoginGet)
-	router.POST("/logout", s.logoutCtrl.Logout)
-	router.GET("/logout", s.logoutCtrl.Logout)
+
 }

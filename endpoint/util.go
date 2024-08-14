@@ -11,7 +11,7 @@ import (
 )
 
 func getIssuer(ctx *gin.Context, config *conf.Config) string {
-	issuer := fmt.Sprintf("%s://%s", config.Scheme, ctx.Request.Host)
+	issuer := fmt.Sprintf("%s://%s/%s/", config.Scheme, ctx.Request.Host, config.TenantPath)
 
 	return issuer
 }
@@ -40,7 +40,8 @@ func AuthMiddleware(ctx *gin.Context) {
 	}
 
 	for _, ignorePath := range ignorePaths {
-		if ctx.Request.URL.Path == ignorePath {
+
+		if strings.LastIndex(ctx.Request.URL.Path, ignorePath) != -1 {
 			ctx.Next()
 			return
 		}
@@ -58,4 +59,12 @@ func AuthMiddleware(ctx *gin.Context) {
 	}
 
 	ctx.Next()
+}
+
+func ShowLogin(ctx *gin.Context, redirect string, config *conf.Config) {
+	ctx.HTML(200, "login.html", gin.H{
+		"redirect": redirect,
+		"tenant":   config.TenantPath,
+		"group":    config.EndpointGroup,
+	})
 }

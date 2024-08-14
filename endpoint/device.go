@@ -1,8 +1,8 @@
 package endpoint
 
 import (
-	"fmt"
 	"log/slog"
+	"net/url"
 	"strings"
 
 	"github.com/wingfeng/idx-oauth2/conf"
@@ -42,14 +42,17 @@ func (ctrl *DeviceCodeController) GetDeviceCode(ctx *gin.Context) {
 	issuer := getIssuer(ctx, ctrl.Config)
 	auth := ctrl.AuthorizationService.CreateDeviceAuthorization(req.ClientId, req.Scope, issuer)
 
-	verifyUri := fmt.Sprintf("%s%s?%s=%s", ctrl.Config.EndpointGroup, ctrl.Config.DeviceAuthorizationEndpoint, "user_code", auth.UserCode)
+	verifyUri, _ := url.JoinPath(ctrl.Config.EndpointGroup, ctrl.Config.DeviceAuthorizationEndpoint)
+	verifyUri += "?" + "user_code=" + auth.UserCode
+	fullPath := getIssuer(ctx, ctrl.Config) + verifyUri
 	resp := &response.DeviceCodeResponse{
-		DeviceCode:      auth.DeviceCode,
-		ExpiresIn:       int64(ctrl.Config.DeviceCodeLifeTime),
-		Interval:        5,
-		Message:         "Please visit the following URL to authorize the application: ",
-		UserCode:        auth.UserCode,
-		VerificationUri: verifyUri,
+		DeviceCode:              auth.DeviceCode,
+		ExpiresIn:               int64(ctrl.Config.DeviceCodeLifeTime),
+		Interval:                5,
+		Message:                 "Please visit the following URL to authorize the application: ",
+		UserCode:                auth.UserCode,
+		VerificationUri:         verifyUri,
+		VerificationUriComplete: fullPath,
 	}
 	ctx.JSON(200, resp)
 }
@@ -65,10 +68,7 @@ func (ctrl *DeviceCodeController) PostDeviceAuthorization(ctx *gin.Context) {
 	principle := ctx.GetString(Const_Principle)
 	//require login when principle is empty
 	if strings.EqualFold(principle, "") {
-		ctx.HTML(401, "login.html", gin.H{
-			"error":    "unauthorized",
-			"redirect": ctx.Request.URL.String(),
-		})
+		ShowLogin(ctx, ctx.Request.URL.String(), ctrl.Config)
 		return
 	}
 	slog.Debug("Valide Principle done", "principle", principle)

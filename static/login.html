@@ -22,7 +22,7 @@
 <body>
     <div class="container">
         <h1  class="card-title"><a href="/">IDx</a> Login</h1>
-        <form action="/login" method="POST">
+        <form action="/{{.tenant}}/login" method="POST">
             <div class="form-group">
                 <label for="username">UserName:</label>
                 <input type="text" class="form-control" name="username" required

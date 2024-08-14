@@ -18,7 +18,7 @@
   <body>
     <div class="container">
       <div class="jumbotron">
-        <form action="/oauth2/consent" method="POST">
+        <form action="/{{.tenant}}/{{.group}}/consent" method="POST">
           <h1>Consent</h1>
           <p>Application <b>{{.client_name}}({{.client_id}})</b> need your consent to access resources listed below</p>
         

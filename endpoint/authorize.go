@@ -59,9 +59,7 @@ func (ctrl *AuthorizeController) Authorize(ctx *gin.Context) {
 	principle := ctx.GetString(Const_Principle)
 	//require login when principle is empty
 	if strings.EqualFold(principle, "") {
-		ctx.HTML(401, "login.html", gin.H{
-			"redirect": ctx.Request.URL.String(),
-		})
+		ShowLogin(ctx, ctx.Request.URL.String(), ctrl.Config)
 		return
 	}
 	slog.Debug("Valide Principle done", "principle", principle)
@@ -80,6 +78,8 @@ func (ctrl *AuthorizeController) Authorize(ctx *gin.Context) {
 			"client_id":   req.ClientId,
 			"client_name": client.GetClientName(),
 			"scope":       scopes,
+			"tenant":      ctrl.Config.TenantPath,
+			"group":       ctrl.Config.EndpointGroup,
 			"uri":         ctx.Request.URL.String(),
 		})
 		return

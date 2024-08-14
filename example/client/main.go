@@ -26,8 +26,8 @@ var (
 		Scopes:       []string{"openid profile email"},
 		RedirectURL:  "http://localhost:9000/callback",
 		Endpoint: oauth2.Endpoint{
-			AuthURL:  authServerURL + "/oauth2/authorize",
-			TokenURL: authServerURL + "/oauth2/token",
+			AuthURL:  authServerURL + "/idx/oauth2/authorize",
+			TokenURL: authServerURL + "/idx/oauth2/token",
 		},
 	}
 	globalToken *oauth2.Token // Non-concurrent security

@@ -30,11 +30,10 @@ func init_router() (*gin.Engine, *oauth2.Tenant) {
 	})
 	router := gin.Default()
 	router.LoadHTMLGlob("../static/*.html")
-
+	router.Static("/static", "../static")
 	store := memstore.NewStore([]byte("secret"))
-	router.Use(sessions.Sessions("mysession", store))
+	router.Use()
 	router.Use(endpoint.AuthMiddleware)
-	group := router.Group(config.EndpointGroup)
 
 	tokenService := impl.NewJwtTokenService(jwt.SigningMethodHS256, []byte("mysecret"), func(userName string, scope string) map[string]interface{} {
 		return map[string]interface{}{
@@ -48,7 +47,7 @@ func init_router() (*gin.Engine, *oauth2.Tenant) {
 
 	tenant := oauth2.NewTenant(config, buildUserRepo(), clientRepo, authRepo, consentRepo, tokenService, nil)
 
-	tenant.InitOAuth2Router(group, router)
+	tenant.InitOAuth2Router(router, sessions.Sessions("mysession", store))
 
 	return router, tenant
 }

@@ -20,8 +20,6 @@ import (
 	"github.com/wingfeng/idx-gorm/repo"
 	oauth2 "github.com/wingfeng/idx-oauth2"
 
-	"github.com/wingfeng/idx-oauth2/endpoint"
-
 	"github.com/wingfeng/idx-oauth2/conf"
 
 	"github.com/wingfeng/idx-oauth2/service"
@@ -60,10 +58,6 @@ func main() {
 
 	router := gin.Default()
 	store := gormsessions.NewStore(db, true, []byte("secret"))
-	router.Use(sessions.Sessions("mysession", store))
-
-	router.Use(endpoint.AuthMiddleware)
-	group := router.Group(config.EndpointGroup)
 
 	authRepo := repo.NewAuthorizationRepository(db)
 	userRepo := repo.NewUserRepository(db)
@@ -75,11 +69,7 @@ func main() {
 		authRepo,
 		consentRepo,
 		tokenService, jwks)
-	tenant.InitOAuth2Router(group, router)
-
-	router.GET("/", endpoint.Index)
-	router.GET("/index.html", endpoint.Index)
-	router.GET("/index", endpoint.Index)
+	tenant.InitOAuth2Router(router, sessions.Sessions("mysession", store))
 
 	router.Static("/img", "../../static/img")
 	router.LoadHTMLGlob("../../static/*.html")

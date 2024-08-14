@@ -10,14 +10,13 @@ import (
 	"os"
 
 	"github.com/gin-contrib/sessions"
-	"github.com/gin-contrib/sessions/cookie"
+	memstore "github.com/gin-contrib/sessions/memstore"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"
 	oauth2 "github.com/wingfeng/idx-oauth2"
 	"github.com/wingfeng/idx-oauth2/conf"
 	constants "github.com/wingfeng/idx-oauth2/const"
-	"github.com/wingfeng/idx-oauth2/endpoint"
 	"github.com/wingfeng/idx-oauth2/model"
 	"github.com/wingfeng/idx-oauth2/repo"
 	"github.com/wingfeng/idx-oauth2/service"
@@ -35,17 +34,11 @@ func main() {
 
 	router := gin.Default()
 
-	store := cookie.NewStore([]byte("secret"))
-	router.Use(sessions.Sessions("mysession", store))
-	router.Use(endpoint.AuthMiddleware)
+	store := memstore.NewStore([]byte("secret"))
 
-	router.Static("/img", "../static/img")
+	sessionHandler := sessions.Sessions("mysession", store)
 	router.LoadHTMLGlob("../static/*.html")
-	router.GET("/", endpoint.Index)
-	router.GET("/index.html", endpoint.Index)
-
-	group := router.Group(config.EndpointGroup)
-
+	router.Static("/img", "../static/img")
 	tokenService, jwks := buildTokenService(config)
 	clientRepo := buildClientRepo()
 	authRepo := repo.NewInMemoryAuthorizeRepository()
@@ -54,7 +47,7 @@ func main() {
 
 	tenant := oauth2.NewTenant(config, buildUserRepo(), clientRepo, authRepo, consentRepo, tokenService, jwks)
 
-	tenant.InitOAuth2Router(group, router)
+	tenant.InitOAuth2Router(router, sessionHandler)
 
 	address := fmt.Sprintf("%s:%d", "", 9097)
 	router.Run(address)
