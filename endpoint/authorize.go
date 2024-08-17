@@ -113,6 +113,9 @@ func (ctrl *AuthorizeController) Authorize(ctx *gin.Context) {
 	case "form_post":
 		linkSymbol = "#"
 	}
+	if strings.Contains(req.RedirectUri, "?") || strings.Contains(req.RedirectUri, "#") {
+		linkSymbol = "&"
+	}
 	slog.Debug("callback link", "link", req.RedirectUri+linkSymbol+callbackQuery.Encode())
 	if req.ResponseMode == "form_post" {
 		body := gin.H{
