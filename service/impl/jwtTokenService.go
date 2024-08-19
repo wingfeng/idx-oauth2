@@ -28,6 +28,7 @@ func NewJwtTokenService(method jwt.SigningMethod, signKey interface{}, getClaims
 
 func (s *JWTTokenService) GenerateToken(authorization *model.Authorization) (string, error) {
 	userName := authorization.PrincipalName
+
 	token := jwt.NewWithClaims(s.Method, jwt.MapClaims{
 		"iss":                authorization.Issuer,
 		"sub":                authorization.Subject, // subject
@@ -38,13 +39,6 @@ func (s *JWTTokenService) GenerateToken(authorization *model.Authorization) (str
 		"nonce":              authorization.Nonce,
 	})
 
-	//do not add additional claims to access token. only added to id token
-	// if s.GetClaims != nil {
-	// 	claims := s.GetClaims(userName)
-	// 	for k, v := range claims {
-	// 		token.Claims.(jwt.MapClaims)[k] = v
-	// 	}
-	// }
 	tokenString, err := token.SignedString(s.SignKey)
 	if err != nil {
 		slog.Error("Token Sign Error")
@@ -52,9 +46,13 @@ func (s *JWTTokenService) GenerateToken(authorization *model.Authorization) (str
 	return tokenString, nil
 	//generate a token
 }
+
+// GenerateRefreshToken generate a refresh token
 func (s *JWTTokenService) GenerateRefreshToken(authorization *model.Authorization) (string, error) {
 	return uuid.NewString(), nil
 }
+
+// GenerateIDToken generate an id token
 func (s *JWTTokenService) GenerateIDToken(authorization *model.Authorization) (string, error) {
 	userName := authorization.PrincipalName
 	token := jwt.NewWithClaims(s.Method, jwt.MapClaims{
