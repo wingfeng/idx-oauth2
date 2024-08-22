@@ -48,11 +48,26 @@ func (ctrl *TokenController) PostToken(ctx *gin.Context) {
 		ctx.JSON(401, gin.H{"error": "invalid_client or secret"})
 		return
 	}
-	if err := ctrl.validateRequest(req); err != nil {
+	client, err := ctrl.ClientService.GetClient(req.ClientId)
+	if err != nil {
+		ctx.JSON(401, gin.H{
+			"msg":   "invalid client",
+			"error": err.Error(),
+		})
+		return
+	}
+
+	if err := ctrl.validateRequest(client, req); err != nil {
 		ctx.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
-	var err error
+	//set cors headers base on client allow origin
+
+	for _, v := range client.GetWebOrigins() {
+		ctx.Header("Access-Control-Allow-Origin", v)
+	}
+	ctx.Header("Access-Control-Request-Method", "GET,POST")
+
 	var authorization *model.Authorization
 	switch req.GrantType {
 	case string(constants.AuthorizationCode):
@@ -83,12 +98,13 @@ func (ctrl *TokenController) PostToken(ctx *gin.Context) {
 			case "S256":
 				// Hash the code verifier
 				hashedVerifier := sha256.Sum256([]byte(req.CodeVerifier))
+				rawEncodedVerifier := base64.RawURLEncoding.EncodeToString(hashedVerifier[:])
 				encodedVerifier := base64.URLEncoding.EncodeToString(hashedVerifier[:])
-
 				// Compare the encoded verifier with the stored code challenge
-				if !strings.EqualFold(encodedVerifier, authorization.CodeChallenge) {
+				if !strings.EqualFold(rawEncodedVerifier, authorization.CodeChallenge) && !strings.EqualFold(encodedVerifier, authorization.CodeChallenge) {
 					ctx.JSON(400, gin.H{"error": "PKCE error,verifier not match"})
-					slog.Error("PKCE not match", "method", "S256", "codeVerifier", encodedVerifier, "CodeChallenge", authorization.CodeChallenge)
+					slog.Error("PKCE not match", "method", "S256", "rawcodeVerifier", rawEncodedVerifier,
+						"encodedcodeVerifier", encodedVerifier, "CodeChallenge", authorization.CodeChallenge)
 					return
 				}
 			case "plain":
@@ -169,14 +185,7 @@ func (ctrl *TokenController) PostToken(ctx *gin.Context) {
 	ctx.JSON(200, response)
 }
 
-func (ctrl *TokenController) validateRequest(req *request.TokenRequest) error {
-
-	client, err := ctrl.ClientService.GetClient(req.ClientId)
-
-	if err != nil {
-
-		return fmt.Errorf("invalid request,Error: %s", err.Error())
-	}
+func (ctrl *TokenController) validateRequest(client model.IClient, req *request.TokenRequest) error {
 
 	if !service.ValidateGrantType(client, req.GrantType) {
 

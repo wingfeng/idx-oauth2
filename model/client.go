@@ -30,6 +30,8 @@ type IClient interface {
 
 	// GetSecret returns a list of secrets associated with the client.
 	GetSecret() []string
+	// GetWebOrigins returns a list of web origins associated with the client.
+	GetWebOrigins() []string
 }
 
 type Client struct {
@@ -42,7 +44,7 @@ type Client struct {
 	RequireConsent bool     `json:"require_consent"`
 	RequirePKCE    bool     `json:"require_pkce"`
 	RedirectUris   []string `json:"redirect_uris"`
-
+	WebOrigins     string   `json:"web_origins"`
 	PostLogoutUris []string `json:"post_logout_uri"`
 	// 创建时间
 	CreatedAt string `json:"created_at"`
@@ -81,4 +83,7 @@ func (c *Client) GetSecret() []string {
 }
 func (c *Client) GetRequirePKCE() bool {
 	return c.RequirePKCE
+}
+func (c *Client) GetWebOrigins() []string {
+	return strings.Split(c.WebOrigins, " ")
 }
