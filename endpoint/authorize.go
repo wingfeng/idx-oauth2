@@ -77,6 +77,7 @@ func (ctrl *AuthorizeController) Authorize(ctx *gin.Context) {
 		ctx.HTML(200, "consent.html", gin.H{
 			"client_id":   req.ClientId,
 			"client_name": client.GetClientName(),
+			"data":        client, // sent the client object to html template
 			"scope":       scopes,
 			"tenant":      ctrl.Config.TenantPath,
 			"group":       ctrl.Config.EndpointGroup,
