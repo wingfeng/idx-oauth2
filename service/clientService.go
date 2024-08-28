@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"regexp"
 	"strings"
 
 	"github.com/wingfeng/idx-oauth2/model"
@@ -123,7 +124,7 @@ func (cs *DefaultClientService) ValidateClient(client model.IClient) error {
 	}
 	//there is only on redict Uri in request
 	if len(client.GetRedirectUris()) > 0 {
-		if !validateReturnUri(orgClient, client.GetRedirectUris()[0]) {
+		if !ValidateReturnUri(orgClient, client.GetRedirectUris()[0]) {
 			slog.Error("Invalid return url", "ReturnUrl", client.GetRedirectUris()[0])
 			return fmt.Errorf("invalid return url %s", client.GetRedirectUris()[0])
 		}
@@ -156,10 +157,16 @@ func ValidateGrantType(client model.IClient, grantType string) bool {
 	}
 	return false
 }
-func validateReturnUri(client model.IClient, uri string) bool {
+func ValidateReturnUri(client model.IClient, uri string) bool {
 	supportUris := client.GetRedirectUris()
 	for _, supportUri := range supportUris {
-		if strings.EqualFold(supportUri, uri) {
+		//chang to match with regex
+		matched, err := regexp.MatchString(supportUri, uri)
+		if err != nil {
+			slog.Error("Invalid return url", "ReturnUrl", uri, "Error", err)
+			return false
+		}
+		if matched {
 			return true
 		}
 	}
