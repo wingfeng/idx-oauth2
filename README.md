@@ -9,19 +9,18 @@
 
 ## About  
 
-This project is for who want to build your own OAUTH2 and OIDC server with golang,It use for oauth2 to support OIDC and device code grant type. Build your own repository to store usres and clients authorizations. the repository provided in this module is just a sample. and it is not recommended to use it in production.  
+This project is for who want to build your own OAUTH2 and OIDC server with golang,It use for oauth2 to support OIDC and device code grant type. Build your own repository to store users and clients authorizations. the repository provided in this module is just a sample. and it is not recommended to use it in production.  
 
 ## Features  
 	
 OAuth2.0 Server Implementation, Support Grant Types:  
 
-* Authorization Code Grant Type
-* Implicit Grant Type
-* Resource Owner Password Credentials Grant Type
-* Client Credentials Grant Type
-* Refresh Token Grant Type
-* Password Grant Type
-* Device Code Grant Type  
+* [Authorization Code Grant Type](https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth2-auth-code-flow)
+* [Implicit Grant Type](https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth2-implicit-grant-flow)
+* [Resource Owner Password Credentials Grant Type](https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth-ropc)
+* [Client Credentials Grant Type](https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth2-client-creds-grant-flow)
+* [Refresh Token Grant Type](https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth2-auth-code-flow#refresh-the-access-token)
+* [Device Code Grant Type](https://learn.microsoft.com/en-us/entra/identity-platform/v2-oauth2-device-code)  
 Support OIDC  
 
 ## Quick Start  
@@ -40,22 +39,17 @@ you can find the example in ./example/mainInMem.go
 import oauth2 "github.com/wingfeng/idx-oauth2"
 
 func main() {
-config := conf.DefaultConfig()
+
+	config := conf.DefaultConfig()
 	config.Scheme = "http"
 
 	router := gin.Default()
 
-	store := cookie.NewStore([]byte("secret"))
-	router.Use(sessions.Sessions("mysession", store))
-	router.Use(endpoint.AuthMiddleware)
+	store := memstore.NewStore([]byte("secret"))
 
-	router.Static("/img", "../static/img")
+	sessionHandler := sessions.Sessions("mysession", store)
 	router.LoadHTMLGlob("../static/*.html")
-	router.GET("/", endpoint.Index)
-	router.GET("/index.html", endpoint.Index)
-
-	group := router.Group(config.EndpointGroup)
-
+	router.Static("/img", "../static/img")
 	tokenService, jwks := buildTokenService(config)
 	clientRepo := buildClientRepo()
 	authRepo := repo.NewInMemoryAuthorizeRepository()
@@ -64,7 +58,7 @@ config := conf.DefaultConfig()
 
 	tenant := oauth2.NewTenant(config, buildUserRepo(), clientRepo, authRepo, consentRepo, tokenService, jwks)
 
-	tenant.InitOAuth2Router(group, router)
+	tenant.InitOAuth2Router(router, sessionHandler)
 
 	address := fmt.Sprintf("%s:%d", "", 9097)
 	router.Run(address)
