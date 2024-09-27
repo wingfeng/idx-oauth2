@@ -64,11 +64,11 @@ func main() {
 	consentRepo := repo.NewConsentRepository(db)
 	clientRepo := repo.NewClientRepository(db)
 	tokenService, jwks := buildTokenService(config, userRepo)
-	tenant := oauth2.NewTenant(config, userRepo,
-		clientRepo,
-		authRepo,
-		consentRepo,
-		tokenService, jwks)
+	us := &service.DefaultUserService{
+		UserRepository: userRepo,
+	}
+	tenant := oauth2.NewTenant(config, clientRepo, authRepo, consentRepo, us, tokenService, jwks)
+
 	tenant.InitOAuth2Router(router, sessions.Sessions("mysession", store))
 
 	router.Static("/img", "../../static/img")

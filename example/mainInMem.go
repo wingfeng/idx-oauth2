@@ -44,8 +44,10 @@ func main() {
 	authRepo := repo.NewInMemoryAuthorizeRepository()
 
 	consentRepo := repo.NewInMemoryConsentRepository()
-
-	tenant := oauth2.NewTenant(config, buildUserRepo(), clientRepo, authRepo, consentRepo, tokenService, jwks)
+	us := &service.DefaultUserService{
+		UserRepository: buildUserRepo(),
+	}
+	tenant := oauth2.NewTenant(config, clientRepo, authRepo, consentRepo, us, tokenService, jwks)
 
 	tenant.InitOAuth2Router(router, sessionHandler)
 
@@ -61,11 +63,11 @@ func buildClientRepo() *repo.InMemoryClientRepository {
 			"https://oauthdebugger.com/debug",
 			"http://localhost/",
 			"http://localhost:1080/wp-admin/admin-ajax.php?action=openid-connect-authorize",
-			"http://localhost:8000/callback"}, CORSOrigins: "*"},
-		{Id: "client2", ClientId: "implicit_client", ClientName: "client2", RequireConsent: true, ClientScope: "openid email profile ", Secret: secret, GrantTypes: []string{"implicit"}, RedirectUris: []string{"http://localhost:9000/callback"}, CORSOrigins: "*"},
-		{Id: "client3", ClientId: "hybrid_client", ClientName: "client3", RequireConsent: true, ClientScope: "openid email profile ", Secret: "", GrantTypes: []string{"authorization_code", "implicit", "password", string(constants.Refreshing), string(constants.ClientCredentials), string(constants.DeviceCode)}, RedirectUris: []string{"http://localhost:9000/callback", "https://oauthdebugger.com/debug"}, CORSOrigins: "*"},
-		{Id: "client4", ClientId: "password_client", ClientName: "client4", RequireConsent: true, ClientScope: "openid email profile ", Secret: secret, GrantTypes: []string{"password"}, RedirectUris: []string{"http://localhost:9000/callback"}, CORSOrigins: "*"},
-		{Id: "client5", ClientId: "device_code_client", ClientName: "client5", RequireConsent: true, ClientScope: "openid email profile ", Secret: secret, GrantTypes: []string{string(constants.DeviceCode)}, RedirectUris: []string{"http://localhost:9000/callback"}, CORSOrigins: "*"},
+			"http://localhost:8000/callback"}, WebOrigins: "*"},
+		{Id: "client2", ClientId: "implicit_client", ClientName: "client2", RequireConsent: true, ClientScope: "openid email profile ", Secret: secret, GrantTypes: []string{"implicit"}, RedirectUris: []string{"http://localhost:9000/callback"}, WebOrigins: "*"},
+		{Id: "client3", ClientId: "hybrid_client", ClientName: "client3", RequireConsent: true, ClientScope: "openid email profile ", Secret: "", GrantTypes: []string{"authorization_code", "implicit", "password", string(constants.Refreshing), string(constants.ClientCredentials), string(constants.DeviceCode)}, RedirectUris: []string{"http://localhost:9000/callback", "https://oauthdebugger.com/debug"}, WebOrigins: "*"},
+		{Id: "client4", ClientId: "password_client", ClientName: "client4", RequireConsent: true, ClientScope: "openid email profile ", Secret: secret, GrantTypes: []string{"password"}, RedirectUris: []string{"http://localhost:9000/callback"}, WebOrigins: "*"},
+		{Id: "client5", ClientId: "device_code_client", ClientName: "client5", RequireConsent: true, ClientScope: "openid email profile ", Secret: secret, GrantTypes: []string{string(constants.DeviceCode)}, RedirectUris: []string{"http://localhost:9000/callback"}, WebOrigins: "*"},
 	})
 	return clientRepo
 }

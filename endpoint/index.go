@@ -7,6 +7,9 @@ import (
 	"github.com/wingfeng/idx-oauth2/conf"
 )
 
+type IIndexController interface {
+	Index(ctx *gin.Context)
+}
 type IndexController struct {
 	Config *conf.Config
 }

@@ -7,6 +7,10 @@ import (
 	"github.com/wingfeng/idx-oauth2/service"
 )
 
+type ILogoutController interface {
+	Logout(ctx *gin.Context)
+}
+
 type LogoutController struct {
 	ClientService service.ClientService
 	Config        *conf.Config

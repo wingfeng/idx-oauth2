@@ -2,7 +2,6 @@ package endpoint
 
 import (
 	"log/slog"
-	"net/http"
 	"net/url"
 	"strings"
 
@@ -16,6 +15,10 @@ import (
 
 const Const_Principle = "Principal"
 
+type ILoginController interface {
+	PostLogin(ctx *gin.Context)
+	GetLogin(ctx *gin.Context)
+}
 type LoginController struct {
 	UserService service.UserService
 	Config      *conf.Config
@@ -55,19 +58,6 @@ func (ctrl *LoginController) PostLogin(ctx *gin.Context) {
 		return
 	}
 }
-func (ctrl *LoginController) LoginGet(ctx *gin.Context) {
-
-	link := ctx.Request.Referer()
-	slog.Info("Redirect from ", "Referer", link)
-	if strings.EqualFold(link, "") || strings.Index(link, "/login") == 0 {
-		link = "/"
-	}
-	redirect := ctx.Query("redirect")
-	if strings.EqualFold(redirect, "") {
-		redirect = link
-	}
-	ctx.HTML(http.StatusFound, "login.html", gin.H{
-		"tenant":   ctrl.Config.TenantPath,
-		"redirect": redirect,
-	})
+func (ctrl *LoginController) GetLogin(ctx *gin.Context) {
+	ShowLogin(ctx, ctx.Query("redirect"), ctrl.Config)
 }

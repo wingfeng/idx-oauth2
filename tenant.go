@@ -17,33 +17,32 @@ type Tenant struct {
 	ConsentService   service.ConsentService
 	Config           *conf.Config
 	//controller
-	authorizeCtrl    *endpoint.AuthorizeController
-	tokenCtrl        *endpoint.TokenController
-	wellKnowCtrl     *endpoint.WellknownController
-	userInfoCtrl     *endpoint.UserInfoController
-	introspectCtrl   *endpoint.IntrospectController
-	deviceCtrl       *endpoint.DeviceCodeController
-	consentCtrl      *endpoint.ConsentController
-	indexCtrl        *endpoint.IndexController
-	loginCtrl        *endpoint.LoginController
-	logoutCtrl       *endpoint.LogoutController
+	authorizeCtrl  *endpoint.AuthorizeController
+	tokenCtrl      *endpoint.TokenController
+	wellKnowCtrl   *endpoint.WellknownController
+	userInfoCtrl   *endpoint.UserInfoController
+	introspectCtrl *endpoint.IntrospectController
+	deviceCtrl     *endpoint.DeviceCodeController
+	consentCtrl    *endpoint.ConsentController
+
 	revokeCtrl       *endpoint.RevokeController
 	endSessionCtrl   *endpoint.EndSessionController
 	checkSessionCtrl *endpoint.CheckSessionController
+	//allow app to customize login logout index
+	IndexCtrl  endpoint.IIndexController
+	LoginCtrl  endpoint.ILoginController
+	LogoutCtrl endpoint.ILogoutController
 }
 
 func NewTenant(config *conf.Config,
-	userRepo repo.UserRepository,
+
 	clientRepo repo.ClientRepository,
 	authRepo repo.AuthorizationRepository,
 	consentRepo repo.ConsentRepository,
+	userService service.UserService,
 	tokenService service.TokenService,
 	jwks *conf.JWKS,
 ) *Tenant {
-
-	userService := &service.DefaultUserService{
-		UserRepository: userRepo,
-	}
 
 	clientService := service.NewClientService(clientRepo)
 	consentService := &service.DefaultConsentService{Repo: consentRepo}
@@ -88,12 +87,12 @@ func NewTenant(config *conf.Config,
 	s.checkSessionCtrl = &endpoint.CheckSessionController{}
 
 	s.consentCtrl = &endpoint.ConsentController{ConsentService: consentService}
-	s.loginCtrl = &endpoint.LoginController{
+	s.LoginCtrl = &endpoint.LoginController{
 		UserService: userService,
 		Config:      config,
 	}
-	s.logoutCtrl = &endpoint.LogoutController{ClientService: clientService, Config: config}
-	s.indexCtrl = &endpoint.IndexController{Config: config}
+	s.LogoutCtrl = &endpoint.LogoutController{ClientService: clientService, Config: config}
+	s.IndexCtrl = &endpoint.IndexController{Config: config}
 	return s
 }
 
@@ -108,13 +107,13 @@ func (s *Tenant) InitOAuth2Router(router *gin.Engine, SessionHandler func(ctx *g
 
 	tenantGroup.GET("/.well-known/openid-configuration", s.wellKnowCtrl.GetConfiguration)
 	tenantGroup.GET(config.JwksURI, s.wellKnowCtrl.GetJWKS)
-	tenantGroup.POST("/login", s.loginCtrl.PostLogin)
-	tenantGroup.GET("/login", s.loginCtrl.LoginGet)
-	tenantGroup.POST("/logout", s.logoutCtrl.Logout)
-	tenantGroup.GET("/logout", s.logoutCtrl.Logout)
+	tenantGroup.POST("/login", s.LoginCtrl.PostLogin)
+	tenantGroup.GET("/login", s.LoginCtrl.GetLogin)
+	tenantGroup.POST("/logout", s.LogoutCtrl.Logout)
+	tenantGroup.GET("/logout", s.LogoutCtrl.Logout)
 
-	tenantGroup.GET("/", s.indexCtrl.Index)
-	tenantGroup.GET("/index.html", s.indexCtrl.Index)
+	tenantGroup.GET("/", s.IndexCtrl.Index)
+	tenantGroup.GET("/index.html", s.IndexCtrl.Index)
 	group := tenantGroup.Group(config.EndpointGroup)
 
 	group.POST(config.AuthorizationEndpoint, s.authorizeCtrl.Authorize)
