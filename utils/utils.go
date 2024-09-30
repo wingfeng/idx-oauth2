@@ -1,6 +1,10 @@
 package utils
 
-import "golang.org/x/crypto/bcrypt"
+import (
+	"math/rand"
+
+	"golang.org/x/crypto/bcrypt"
+)
 
 // HashPassword generates a bcrypt hash for the given password.
 // This function takes a password string as input, and returns the hashed password string and possible errors.
@@ -21,4 +25,17 @@ func HashPassword(password string) (string, error) {
 	// Return the hashed password as a string.
 	// Storing the hashed password instead of the plaintext password greatly enhances system security.
 	return string(hashedBytes), nil
+}
+
+// GenerateRandomString generates a random string of a given length consisting of letters and digits.
+func GenerateRandomString(length int) string {
+	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+=-"
+	result := make([]byte, length)
+	//rand.Seed(time.Now().UnixNano())
+
+	for i := 0; i < length; i++ {
+		result[i] = charset[rand.Intn(len(charset))]
+	}
+
+	return string(result)
 }
