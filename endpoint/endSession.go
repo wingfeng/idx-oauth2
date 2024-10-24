@@ -1,6 +1,7 @@
 package endpoint
 
 import (
+	"html/template"
 	"strings"
 
 	"github.com/gin-contrib/sessions"
@@ -19,10 +20,11 @@ func (c *EndSessionController) EndSession(ctx *gin.Context) {
 		ctx.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
-	err := c.ClientService.ValidateLogoutUri(req.ClientId, req.PostLogoutRedirectUri)
-	if err != nil {
-		ctx.JSON(400, gin.H{"error": err.Error()})
-	}
+	//todo:extract client info and redirecturi from id_token
+	// err := c.ClientService.ValidateLogoutUri(req.ClientId, req.PostLogoutRedirectUri)
+	// if err != nil {
+	// 	ctx.JSON(400, gin.H{"error": err.Error()})
+	// }
 	session := sessions.Default(ctx)
 	session.Delete(Const_Principle)
 	session.Save()
@@ -36,8 +38,9 @@ func (c *EndSessionController) EndSession(ctx *gin.Context) {
 		}
 
 	}
+
 	ctx.HTML(200, "endsession.html", gin.H{
 		"state": req.State,
-		"url":   url,
+		"url":   template.URL(url),
 	})
 }
