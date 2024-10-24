@@ -29,7 +29,9 @@ func (c *EndSessionController) EndSession(ctx *gin.Context) {
 	session.Delete(Const_Principle)
 	session.Save()
 	url := req.PostLogoutRedirectUri
-
+	if strings.EqualFold(url, "") {
+		url = ctx.Request.Referer()
+	}
 	if req.State != "" {
 		if strings.Contains(req.PostLogoutRedirectUri, "?") {
 			url = url + "&state=" + req.State
