@@ -56,7 +56,10 @@ func main() {
 
 	consentRepo := repo.NewInMemoryConsentRepository()
 
-	tenant := oauth2.NewTenant(config, buildUserRepo(), clientRepo, authRepo, consentRepo, tokenService, jwks)
+	userService := &service.DefaultUserService{
+		UserRepository: buildUserRepo(),
+	}
+	tenant := oauth2.NewTenant(config, clientRepo, authRepo, consentRepo, userService, tokenService, jwks)
 
 	tenant.InitOAuth2Router(router, sessionHandler)
 
