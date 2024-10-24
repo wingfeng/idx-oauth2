@@ -7,6 +7,7 @@ import (
 	oauth2 "github.com/wingfeng/idx-oauth2"
 	"github.com/wingfeng/idx-oauth2/conf"
 	constants "github.com/wingfeng/idx-oauth2/const"
+	"github.com/wingfeng/idx-oauth2/service"
 
 	"github.com/wingfeng/idx-oauth2/endpoint"
 	"github.com/wingfeng/idx-oauth2/model"
@@ -35,7 +36,7 @@ func init_router() (*gin.Engine, *oauth2.Tenant) {
 	router.Use()
 	router.Use(endpoint.AuthMiddleware)
 
-	tokenService := impl.NewJwtTokenService(jwt.SigningMethodHS256, []byte("mysecret"), func(userName string, scope string) map[string]interface{} {
+	tokenService := impl.NewJwtTokenService(jwt.SigningMethodHS256, []byte("mysecret"), func(token *jwt.Token, userName string, scope string) map[string]interface{} {
 		return map[string]interface{}{
 			"role": "manager",
 		}
@@ -44,8 +45,10 @@ func init_router() (*gin.Engine, *oauth2.Tenant) {
 
 	authRepo := repo.NewInMemoryAuthorizeRepository()
 	consentRepo := repo.NewInMemoryConsentRepository()
-
-	tenant := oauth2.NewTenant(config, buildUserRepo(), clientRepo, authRepo, consentRepo, tokenService, nil)
+	userService := &service.DefaultUserService{
+		UserRepository: buildUserRepo(),
+	}
+	tenant := oauth2.NewTenant(config, clientRepo, authRepo, consentRepo, userService, tokenService, nil)
 
 	tenant.InitOAuth2Router(router, sessions.Sessions("mysession", store))
 

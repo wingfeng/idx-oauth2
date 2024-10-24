@@ -44,10 +44,10 @@ func main() {
 	authRepo := repo.NewInMemoryAuthorizeRepository()
 
 	consentRepo := repo.NewInMemoryConsentRepository()
-	us := &service.DefaultUserService{
+	userService := &service.DefaultUserService{
 		UserRepository: buildUserRepo(),
 	}
-	tenant := oauth2.NewTenant(config, clientRepo, authRepo, consentRepo, us, tokenService, jwks)
+	tenant := oauth2.NewTenant(config, clientRepo, authRepo, consentRepo, userService, tokenService, jwks)
 
 	tenant.InitOAuth2Router(router, sessionHandler)
 
@@ -94,7 +94,8 @@ func buildTokenService(config *conf.Config) (service.TokenService, *conf.JWKS) {
 	key.Kid = uuid.NewString()
 	key.Alg = "RS256"
 	jwks := &conf.JWKS{Keys: []interface{}{key}}
-	tokenService := impl.NewJwtTokenService(jwt.SigningMethodRS256, privateKey, func(userName string, scope string) map[string]interface{} {
+	tokenService := impl.NewJwtTokenService(jwt.SigningMethodRS256, privateKey, func(token *jwt.Token, userName string, scope string) map[string]interface{} {
+		token.Header["kid"] = key.Kid
 		return map[string]interface{}{"roles": []string{"admin", "manager"}}
 	})
 

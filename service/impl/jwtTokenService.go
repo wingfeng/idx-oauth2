@@ -15,10 +15,10 @@ type JWTTokenService struct {
 	SignKey       interface{}
 	TokenLifeTime int64
 	//use for add addition claims to idtoken base on scope required
-	AddClaims func(userName string, scope string) map[string]interface{}
+	AddClaims func(token *jwt.Token, userName string, scope string) map[string]interface{}
 }
 
-func NewJwtTokenService(method jwt.SigningMethod, signKey interface{}, getClaims func(userName string, scope string) map[string]interface{}) *JWTTokenService {
+func NewJwtTokenService(method jwt.SigningMethod, signKey interface{}, getClaims func(token *jwt.Token, userName string, scope string) map[string]interface{}) *JWTTokenService {
 	return &JWTTokenService{
 		Method:    method,
 		SignKey:   signKey,
@@ -38,7 +38,12 @@ func (s *JWTTokenService) GenerateToken(authorization *model.Authorization) (str
 		"aud":                authorization.ClientId,
 		"nonce":              authorization.Nonce,
 	})
-
+	if s.AddClaims != nil {
+		claims := s.AddClaims(token, userName, authorization.Scope)
+		for k, v := range claims {
+			token.Claims.(jwt.MapClaims)[k] = v
+		}
+	}
 	tokenString, err := token.SignedString(s.SignKey)
 	if err != nil {
 		slog.Error("Token Sign Error")
@@ -65,7 +70,7 @@ func (s *JWTTokenService) GenerateIDToken(authorization *model.Authorization) (s
 		"nonce":              authorization.Nonce,
 	})
 	if s.AddClaims != nil {
-		claims := s.AddClaims(userName, authorization.Scope)
+		claims := s.AddClaims(token, userName, authorization.Scope)
 		for k, v := range claims {
 			token.Claims.(jwt.MapClaims)[k] = v
 		}

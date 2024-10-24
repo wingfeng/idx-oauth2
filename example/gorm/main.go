@@ -64,10 +64,10 @@ func main() {
 	consentRepo := repo.NewConsentRepository(db)
 	clientRepo := repo.NewClientRepository(db)
 	tokenService, jwks := buildTokenService(config, userRepo)
-	us := &service.DefaultUserService{
+	userService := &service.DefaultUserService{
 		UserRepository: userRepo,
 	}
-	tenant := oauth2.NewTenant(config, clientRepo, authRepo, consentRepo, us, tokenService, jwks)
+	tenant := oauth2.NewTenant(config, clientRepo, authRepo, consentRepo, userService, tokenService, jwks)
 
 	tenant.InitOAuth2Router(router, sessions.Sessions("mysession", store))
 
@@ -104,10 +104,11 @@ func buildTokenService(config *conf.Config, userRepo *repo.DBUserRepository) (se
 	key.Alg = "RS256"
 	jwks := &conf.JWKS{Keys: []interface{}{key}}
 
-	tokenService := impl.NewJwtTokenService(jwt.SigningMethodRS256, privateKey, func(userName string, scope string) map[string]interface{} {
+	tokenService := impl.NewJwtTokenService(jwt.SigningMethodRS256, privateKey, func(token *jwt.Token, userName string, scope string) map[string]interface{} {
 		u, _ := userRepo.GetUserByName(userName)
 		user := u.(*models.User)
 		result := map[string]interface{}{}
+		token.Header["kid"] = key.Kid
 		//
 		if strings.Contains(scope, "mobile") {
 			result["mobile"] = user.PhoneNumber

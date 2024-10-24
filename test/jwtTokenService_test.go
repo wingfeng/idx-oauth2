@@ -32,7 +32,7 @@ func TestTokenServiceWithJwks(t *testing.T) {
 	key.Kid = "test"
 	key.Alg = "RS256"
 	jwks := &conf.JWKS{Keys: []interface{}{key}}
-	tokenService := impl.NewJwtTokenService(jwt.SigningMethodRS256, privateKey, func(userName string, scope string) map[string]interface{} {
+	tokenService := impl.NewJwtTokenService(jwt.SigningMethodRS256, privateKey, func(token *jwt.Token, userName string, scope string) map[string]interface{} {
 		return map[string]interface{}{"roles": []string{"admin", "manager"}}
 	})
 	jwksResult, err := json.Marshal(jwks)
