@@ -47,12 +47,12 @@ func (us *DefaultUserService) GetUserByName(userName string) (model.IUser, error
 	return us.UserRepository.GetUserByName(userName)
 }
 func (us *DefaultUserService) VerifyPassword(userName string, password string) bool {
-	user, err := us.UserRepository.GetUserByName(userName)
-	if err != nil || user == nil {
+	pwdHash, err := us.UserRepository.GetUserPasswordHash(userName)
+	if err != nil {
 		slog.Error("VerifyPassword error", "error", err, "user name", userName)
 		return false
 	}
-	err = bcrypt.CompareHashAndPassword([]byte(user.GetPasswordHash()), []byte(password))
+	err = bcrypt.CompareHashAndPassword([]byte(pwdHash), []byte(password))
 	return err == nil
 
 }

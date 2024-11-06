@@ -19,6 +19,13 @@ type UserRepository interface {
 	//   IUser interface, representing user information.
 	//   error - An error message, if the operation fails.
 	GetUserByName(userName string) (model.IUser, error)
+	// GetUserPasswordHash retrieves the password hash for a user.
+	// Parameters:
+	//   username - The username.
+	// Returns:
+	//   string, representing the password hash.
+	//   error - An error message, if the operation fails.
+	GetUserPasswordHash(username string) (string, error)
 }
 
 type InMemoryUserRepository struct {
@@ -45,4 +52,12 @@ func (ir *InMemoryUserRepository) GetUserByName(userName string) (model.IUser, e
 		}
 	}
 	return nil, nil
+}
+func (ir *InMemoryUserRepository) GetUserPasswordHash(userName string) (string, error) {
+	for _, user := range ir.users {
+		if user.UserName == userName {
+			return user.PasswordHash, nil
+		}
+	}
+	return "", nil
 }
