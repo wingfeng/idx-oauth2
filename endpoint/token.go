@@ -64,7 +64,13 @@ func (ctrl *TokenController) PostToken(ctx *gin.Context) {
 	//set cors headers base on client allow origin
 
 	for _, v := range client.GetWebOrigins() {
-		ctx.Header("Access-Control-Allow-Origin", v)
+		orgin := ctx.Request.Header.Get("Origin")
+
+		if v == "*" || strings.EqualFold(orgin, v) {
+			ctx.Header("Access-Control-Allow-Origin", v)
+			break
+		}
+		ctx.Header("Access-Control-Allow-Origin", "null")
 	}
 	ctx.Header("Access-Control-Request-Method", "GET,POST")
 
