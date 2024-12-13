@@ -24,7 +24,7 @@ func Test_DeviceCodeGrant(t *testing.T) {
 	query.Add("client_id", "device_code_client")
 	query.Add("client_secret", "secret")
 	query.Add("scope", "openid email profile")
-	link := fmt.Sprintf("%s%s", tenant.Config.EndpointGroup, tenant.Config.DeviceCodeEndpoint)
+	link := fmt.Sprintf("/idx/%s%s", tenant.Config.EndpointGroup, tenant.Config.DeviceCodeEndpoint)
 	req, _ := http.NewRequest("GET", link+"?"+query.Encode(), nil) // bytes.NewBufferString(query.Encode()))
 	//req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 
@@ -40,7 +40,7 @@ func Test_DeviceCodeGrant(t *testing.T) {
 	form := make(url.Values)
 	form.Add("username", "user1")
 	form.Add("password", "password1")
-	req, err := http.NewRequest("POST", "/login", bytes.NewBufferString(form.Encode()))
+	req, err := http.NewRequest("POST", "/idx/login", bytes.NewBufferString(form.Encode()))
 	req.Header.Add("Referer", link)
 
 	if err != nil {
@@ -55,7 +55,7 @@ func Test_DeviceCodeGrant(t *testing.T) {
 	assert.Equal(t, 302, recorder.Code)
 	query = make(url.Values)
 	query.Add("user_code", resp.UserCode)
-	link = fmt.Sprintf("%s%s", tenant.Config.EndpointGroup, tenant.Config.DeviceAuthorizationEndpoint)
+	link = fmt.Sprintf("/idx/%s%s", tenant.Config.EndpointGroup, tenant.Config.DeviceAuthorizationEndpoint)
 	req, _ = http.NewRequest("POST", link, bytes.NewBufferString(query.Encode()))
 	for _, c := range cookies {
 		req.AddCookie(c)
@@ -73,7 +73,7 @@ func Test_DeviceCodeGrant(t *testing.T) {
 	query.Add("client_id", "device_code_client")
 	query.Add("client_secret", "secret")
 
-	req, _ = http.NewRequest("POST", "/oauth2/token", bytes.NewBufferString(query.Encode()))
+	req, _ = http.NewRequest("POST", "/idx/oauth2/token", bytes.NewBufferString(query.Encode()))
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 
 	recorder = httptest.NewRecorder()

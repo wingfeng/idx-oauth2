@@ -25,7 +25,7 @@ func Test_CodeflowWithPKCE(t *testing.T) {
 	query.Add("code_challenge", verifier)
 	query.Add("code_challenge_method", "plain")
 	strQ := query.Encode()
-	authorizeLink := "/oauth2/authorize?" + strQ
+	authorizeLink := "/idx/oauth2/authorize?" + strQ
 	req, _ := http.NewRequest("GET", authorizeLink, nil)
 
 	router.ServeHTTP(recorder, req)
@@ -35,7 +35,7 @@ func Test_CodeflowWithPKCE(t *testing.T) {
 	form := make(url.Values)
 	form.Add("username", "user1")
 	form.Add("password", "password1")
-	req, err := http.NewRequest("POST", "/login", bytes.NewBufferString(form.Encode()))
+	req, err := http.NewRequest("POST", "/idx/login", bytes.NewBufferString(form.Encode()))
 	req.Header.Add("Referer", authorizeLink)
 
 	if err != nil {
@@ -55,14 +55,14 @@ func Test_CodeflowWithPKCE(t *testing.T) {
 	form.Add("scope", "profile")
 	form.Add("scope", "email")
 	form.Add("uri", authorizeLink)
-	req, _ = http.NewRequest("POST", "/oauth2/consent", bytes.NewBufferString(form.Encode()))
+	req, _ = http.NewRequest("POST", "/idx/oauth2/consent", bytes.NewBufferString(form.Encode()))
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 	for _, c := range cookies {
 		req.AddCookie(c)
 	}
 	recorder = httptest.NewRecorder()
 	router.ServeHTTP(recorder, req)
-	assert.Equal(t, 302, recorder.Code)
+	assert.Equal(t, recorder.Code, 302)
 	req, _ = http.NewRequest("GET", authorizeLink, nil)
 
 	for _, c := range cookies {
@@ -75,7 +75,7 @@ func Test_CodeflowWithPKCE(t *testing.T) {
 	recorder.Flush()
 	header := recorder.Header()
 	t.Logf("Authorize Response Body:%s", recorder.Body.String())
-	assert.Equal(t, 302, recorder.Code)
+	assert.Equal(t, recorder.Code, 302)
 	// t.Logf("Resp Redirect:%v", header["Location"])
 	callbackURI, _ := url.Parse(header["Location"][0])
 
@@ -90,7 +90,7 @@ func Test_CodeflowWithPKCE(t *testing.T) {
 	query.Add("client_id", "code_client")
 	query.Add("client_secret", "secret")
 	query.Add("code_verifier", verifier)
-	req, _ = http.NewRequest("POST", "/oauth2/token", bytes.NewBufferString(query.Encode()))
+	req, _ = http.NewRequest("POST", "/idx/oauth2/token", bytes.NewBufferString(query.Encode()))
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 	req.Header.Add("Authorization", generateBasicAuthHeader("code_client", "secret"))
 	recorder = httptest.NewRecorder()
@@ -114,7 +114,7 @@ func Test_Codeflow(t *testing.T) {
 	query.Add("state", "af0ifjsldkj")
 
 	strQ := query.Encode()
-	link := "/oauth2/authorize?" + strQ
+	link := "/idx/oauth2/authorize?" + strQ
 	req, _ := http.NewRequest("GET", link, nil)
 
 	router.ServeHTTP(recorder, req)
@@ -124,7 +124,7 @@ func Test_Codeflow(t *testing.T) {
 	form := make(url.Values)
 	form.Add("username", "user1")
 	form.Add("password", "password1")
-	req, err := http.NewRequest("POST", "/login", bytes.NewBufferString(form.Encode()))
+	req, err := http.NewRequest("POST", "/idx/login", bytes.NewBufferString(form.Encode()))
 	req.Header.Add("Referer", link)
 
 	if err != nil {
@@ -166,7 +166,7 @@ func Test_Codeflow(t *testing.T) {
 	query.Add("grant_type", "authorization_code")
 	query.Add("client_id", "code_client")
 	query.Add("client_secret", "secret")
-	req, _ = http.NewRequest("POST", "/oauth2/token", bytes.NewBufferString(query.Encode()))
+	req, _ = http.NewRequest("POST", "/idx/oauth2/token", bytes.NewBufferString(query.Encode()))
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 
 	recorder = httptest.NewRecorder()
@@ -189,7 +189,7 @@ func Test_CodeNoSecretflow(t *testing.T) {
 	query.Add("state", "af0ifjsldkj")
 
 	strQ := query.Encode()
-	link := "/oauth2/authorize?" + strQ
+	link := "/idx/oauth2/authorize?" + strQ
 	req, _ := http.NewRequest("GET", link, nil)
 
 	router.ServeHTTP(recorder, req)
@@ -199,7 +199,7 @@ func Test_CodeNoSecretflow(t *testing.T) {
 	form := make(url.Values)
 	form.Add("username", "user1")
 	form.Add("password", "password1")
-	req, err := http.NewRequest("POST", "/login", bytes.NewBufferString(form.Encode()))
+	req, err := http.NewRequest("POST", "/idx/login", bytes.NewBufferString(form.Encode()))
 	req.Header.Add("Referer", link)
 
 	if err != nil {

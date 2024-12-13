@@ -62,7 +62,7 @@ func AuthMiddleware(ctx *gin.Context) {
 }
 
 func ShowLogin(ctx *gin.Context, redirect string, config *conf.Config) {
-	ctx.HTML(200, "login.html", gin.H{
+	ctx.HTML(401, "login.html", gin.H{
 		"redirect": redirect,
 		"tenant":   config.TenantPath,
 		"group":    config.EndpointGroup,

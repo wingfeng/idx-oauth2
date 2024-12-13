@@ -28,7 +28,7 @@ func Test_Refreshflow(t *testing.T) {
 	query.Add("code_challenge", verifier)
 	query.Add("code_challenge_method", "plain")
 	strQ := query.Encode()
-	link := "/oauth2/authorize?" + strQ
+	link := "/idx/oauth2/authorize?" + strQ
 	req, _ := http.NewRequest("GET", link, nil)
 
 	router.ServeHTTP(recorder, req)
@@ -38,7 +38,7 @@ func Test_Refreshflow(t *testing.T) {
 	form := make(url.Values)
 	form.Add("username", "user1")
 	form.Add("password", "password1")
-	req, err := http.NewRequest("POST", "/login", bytes.NewBufferString(form.Encode()))
+	req, err := http.NewRequest("POST", "/idx/login", bytes.NewBufferString(form.Encode()))
 	req.Header.Add("Referer", link)
 
 	if err != nil {
@@ -78,7 +78,7 @@ func Test_Refreshflow(t *testing.T) {
 	query.Add("grant_type", "authorization_code")
 	query.Add("client_id", "code_client")
 	query.Add("code_verifier", verifier)
-	req, _ = http.NewRequest("POST", "/oauth2/token", bytes.NewBufferString(query.Encode()))
+	req, _ = http.NewRequest("POST", "/idx/oauth2/token", bytes.NewBufferString(query.Encode()))
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 	baseAuth := generateBasicAuthHeader("code_client", "secret")
 	req.Header.Add("Authorization", baseAuth)
@@ -95,7 +95,7 @@ func Test_Refreshflow(t *testing.T) {
 	query.Add("grant_type", "refresh_token")
 	query.Add("client_id", "code_client")
 	query.Add("refresh_token", tokenResp.RefreshToken)
-	req, _ = http.NewRequest("POST", "/oauth2/token", bytes.NewBufferString(query.Encode()))
+	req, _ = http.NewRequest("POST", "/idx/oauth2/token", bytes.NewBufferString(query.Encode()))
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 	req.Header.Add("Authorization", baseAuth)
 	recorder = httptest.NewRecorder()

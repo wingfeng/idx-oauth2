@@ -21,7 +21,7 @@ func Test_PasswordGrant(t *testing.T) {
 	query.Add("username", "user1")
 	query.Add("scope", "openid email profile")
 	query.Add("password", "password1")
-	req, _ := http.NewRequest("POST", "/oauth2/token", bytes.NewBufferString(query.Encode()))
+	req, _ := http.NewRequest("POST", "/idx/oauth2/token", bytes.NewBufferString(query.Encode()))
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 
 	recorder := httptest.NewRecorder()

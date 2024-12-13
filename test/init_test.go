@@ -9,7 +9,6 @@ import (
 	constants "github.com/wingfeng/idx-oauth2/const"
 	"github.com/wingfeng/idx-oauth2/service"
 
-	"github.com/wingfeng/idx-oauth2/endpoint"
 	"github.com/wingfeng/idx-oauth2/model"
 	"github.com/wingfeng/idx-oauth2/repo"
 	"github.com/wingfeng/idx-oauth2/service/impl"
@@ -33,8 +32,8 @@ func init_router() (*gin.Engine, *oauth2.Tenant) {
 	router.LoadHTMLGlob("../static/*.html")
 	router.Static("/static", "../static")
 	store := memstore.NewStore([]byte("secret"))
-	router.Use()
-	router.Use(endpoint.AuthMiddleware)
+
+	sessionHandler := sessions.Sessions("mysession", store)
 
 	tokenService := impl.NewJwtTokenService(jwt.SigningMethodHS256, []byte("mysecret"), func(token *jwt.Token, userName string, scope string) map[string]interface{} {
 		return map[string]interface{}{
@@ -50,7 +49,7 @@ func init_router() (*gin.Engine, *oauth2.Tenant) {
 	}
 	tenant := oauth2.NewTenant(config, clientRepo, authRepo, consentRepo, userService, tokenService, nil)
 
-	tenant.InitOAuth2Router(router, sessions.Sessions("mysession", store))
+	tenant.InitOAuth2Router(router, sessionHandler)
 
 	return router, tenant
 }

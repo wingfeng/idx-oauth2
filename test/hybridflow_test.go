@@ -23,7 +23,7 @@ func Test_Hybridflow(t *testing.T) {
 	query.Add("nonce", "n-0S6_WzA2Mj")
 	query.Add("state", "af0ifjsldkj")
 	strQ := query.Encode()
-	link := "/oauth2/authorize?" + strQ
+	link := "/idx/oauth2/authorize?" + strQ
 	req, _ := http.NewRequest("GET", link, nil)
 
 	router.ServeHTTP(recorder, req)
@@ -33,7 +33,7 @@ func Test_Hybridflow(t *testing.T) {
 	form := make(url.Values)
 	form.Add("username", "user1")
 	form.Add("password", "password1")
-	req, err := http.NewRequest("POST", "/login", bytes.NewBufferString(form.Encode()))
+	req, err := http.NewRequest("POST", "/idx/login", bytes.NewBufferString(form.Encode()))
 	if err != nil {
 		t.Logf("Error:%s", err.Error())
 	}
@@ -42,7 +42,7 @@ func Test_Hybridflow(t *testing.T) {
 	router.ServeHTTP(recorder, req)
 	cookies := recorder.Result().Cookies()
 	assert.Equal(t, recorder.Code, 302)
-	req, _ = http.NewRequest("GET", "/oauth2/authorize?"+strQ, nil)
+	req, _ = http.NewRequest("GET", "/idx/oauth2/authorize?"+strQ, nil)
 	for _, c := range cookies {
 		req.AddCookie(c)
 	}

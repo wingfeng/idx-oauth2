@@ -22,7 +22,7 @@ func Test_Implicit(t *testing.T) {
 	query.Add("nonce", "n-0S6_WzA2Mj")
 	query.Add("state", "af0ifjsldkj")
 	strQ := query.Encode()
-	link := "/oauth2/authorize?" + strQ
+	link := "/idx/oauth2/authorize?" + strQ
 	req, _ := http.NewRequest("GET", link, nil)
 	router.ServeHTTP(recorder, req)
 
@@ -31,7 +31,7 @@ func Test_Implicit(t *testing.T) {
 	form := make(url.Values)
 	form.Add("username", "user1")
 	form.Add("password", "password1")
-	req, _ = http.NewRequest("POST", "/login", bytes.NewBufferString(form.Encode()))
+	req, _ = http.NewRequest("POST", "/idx/login", bytes.NewBufferString(form.Encode()))
 	req.Header.Add("Referer", link)
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 	recorder = httptest.NewRecorder()

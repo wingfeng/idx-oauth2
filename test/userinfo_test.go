@@ -24,7 +24,7 @@ func TestUserInfoEndpoint(t *testing.T) {
 	query.Add("username", "user1")
 	query.Add("scope", "openid email profile")
 	query.Add("password", "password1")
-	req, _ := http.NewRequest("POST", "/oauth2/token", bytes.NewBufferString(query.Encode()))
+	req, _ := http.NewRequest("POST", "/idx/oauth2/token", bytes.NewBufferString(query.Encode()))
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 
 	recorder := httptest.NewRecorder()
@@ -35,7 +35,7 @@ func TestUserInfoEndpoint(t *testing.T) {
 	var response response.TokenResponse
 	err := json.Unmarshal(recorder.Body.Bytes(), &response)
 	assert.Equal(t, err, nil)
-	req, _ = http.NewRequest("GET", "/oauth2/userinfo", nil)
+	req, _ = http.NewRequest("GET", "/idx/oauth2/userinfo", nil)
 	req.Header.Add("Authorization", "Bearer "+response.AccessToken)
 	recorder = httptest.NewRecorder()
 	router.ServeHTTP(recorder, req)
